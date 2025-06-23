@@ -51,7 +51,7 @@ Edit
   "start": "node app.js"
 }
 
-###✅ Features (Implemented)
+**✅ Features (Implemented)**
 
 🏡 Beautiful and responsive home booking layout
 
@@ -63,7 +63,7 @@ Edit
 
 🔧 Clean and modular file structure
 
-###🔮 Planned Features
+**🔮 Planned Features**
 
 🗂️ Backend integration with MongoDB
 
@@ -75,7 +75,7 @@ Edit
 
 ☁️ Image uploads with Cloudinary or similar service
 
-###📄 License
+**📄 License**
 Licensed under the MIT License.
 
 💡 Contributions are welcome. Feel free to fork and enhance Homezy!
