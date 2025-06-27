@@ -1,1 +1,1 @@
-[{"houseName":"Utsav"},{"houseName":"Secondhouse"},{"houseName":"arijit"},{"houseName":"utsav"}]
+[{"id":"1","houseName":"utsav","price":"1299","location":"Ghaziabad","rating":"4.4","photoUrl":"/images/house1.png"},{"id":"2","houseName":"Secondhouse","price":"999","location":"Ghaziabad","rating":"4","photoUrl":"/images/house2.png"},{"houseName":"Mannat","price":"1999","location":"Jaipur","rating":"4.9","photoUrl":"/images/house3.png","id":"0.7467608237920307"}]
