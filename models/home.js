@@ -1,31 +1,45 @@
-const db=require("../utils/databaseUtil")
+const {ObjectId}=require('mongodb')
+const {getDB}=require('../utils/databaseUtil')
 module.exports = class Home {
-  constructor(name, price, location, rating, imageUrl, description, id) {
+  constructor(name, price, location, rating, imageUrl, description, _id) {
     this.name = name;
     this.price = price;
     this.location = location;
     this.rating = rating;
     this.imageUrl = imageUrl;
     this.description = description;
-    this.id = id;
-  }
+    if(_id){
+    this._id = _id;
+  }}
 
   save() {
-    if(this.id){
-      return db.execute ('UPDATE homes SET name=?, price=?, location=?, rating=?, imageUrl=?, description=? WHERE id=?',[this.name, this.price, this.location, this.rating, this.imageUrl, this.description, this.id])
-    }else{
-      return db.execute ('INSERT INTO homes (name, price, location, rating, imageUrl, description) VALUES (?,?,?,?,?,?)',[this.name, this.price, this.location, this.rating, this.imageUrl, this.description, this.id])
-    }}
+     const db=getDB();
+     if(this._id){
+      const updateFields={
+        name: this.name, 
+        price: this.price,
+        location: this.location, 
+        rating: this.rating, 
+        imageUrl: this.imageUrl, 
+        description: this.description
+      }
+       return db.collection("homes").updateOne({_id:new ObjectId(String(this._id))},{$set:updateFields})
+     }else{
+       return db.collection("homes").insertOne(this);
+     }}
 
   static fetchAll() {
-    return db.execute ("SELECT * FROM homes")
+    const db=getDB();
+    return db.collection("homes").find().toArray()
   }
 
   static findById(homeId) {
-    return db.execute ("SELECT * FROM homes WHERE id=?",[homeId]);
+   const db=getDB();
+    return db.collection("homes").find({_id:new ObjectId(String(homeId))}).next()
   }
 
   static deleteById(homeId) {
-    return db.execute ("DELETE FROM homes WHERE id=?",[homeId])
+   const db=getDB();
+    return db.collection("homes").deleteOne({_id:new ObjectId(String(homeId))})
   }
 }

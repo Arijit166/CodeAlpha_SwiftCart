@@ -1,5 +1,4 @@
 const Home = require("../models/home");
-
 exports.getAddHome = (req, res, next) => {
   res.render("host/edit-home", {
     pageTitle: "Add Home to airbnb",
@@ -12,8 +11,7 @@ exports.getEditHome = (req, res, next) => {
   const homeId = req.params.homeId;
   const editing = req.query.editing === 'true';
 
-  Home.findById(homeId) .then(([homes]) => {
-    const home=homes[0]
+  Home.findById(homeId) .then(home => {
     if (!home) {
       console.log("Home not found for editing.");
       return res.redirect("/host/host-home-list");
@@ -30,7 +28,7 @@ exports.getEditHome = (req, res, next) => {
 };
 
 exports.getHostHomes = (req, res, next) => {
-  Home.fetchAll().then(([registeredHomes])=>{
+  Home.fetchAll().then((registeredHomes)=>{
     res.render("host/host-home-list", {
       registeredHomes: registeredHomes,
       pageTitle: "Host Homes List",
@@ -42,14 +40,18 @@ exports.getHostHomes = (req, res, next) => {
 exports.postAddHome = (req, res, next) => {
   const { name, price, location, rating, imageUrl, description } = req.body;
   const home = new Home(name, price, location, rating, imageUrl, description);
-  home.save();
+  home.save().then(()=>{
+    console.log("Home saved successfully")
+  })
   res.redirect("/host/host-home-list");
 };
 
 exports.postEditHome = (req, res, next) => {
   const { id, name, price, location, rating, imageUrl, description } = req.body;
   const home = new Home(name, price, location, rating, imageUrl,description, id);
-  home.save();
+  home.save().then(result=>{
+    console.log("Home Updated",result)
+  });
   res.redirect("/host/host-home-list");
 };
 
