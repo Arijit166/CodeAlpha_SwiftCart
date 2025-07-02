@@ -9,8 +9,7 @@ const storeRouter = require("./routes/storeRouter")
 const hostRouter = require("./routes/hostRouter")
 const rootDir = require("./utils/pathUtil");
 const errorsController = require("./controllers/errors");
-const {mongoConnect} = require('./utils/databaseUtil');
-
+const {default: mongoose}=require ('mongoose');
 const app = express();
 
 app.set('view engine', 'ejs');
@@ -25,9 +24,11 @@ app.use(express.static(path.join(rootDir, 'public')))
 app.use(errorsController.pageNotFound);
 
 const PORT = 2006;
-mongoConnect(() =>{
-  app.listen(PORT, () => {
+const DB_PATH ="mongodb+srv://root:arijit@completecoding.4chqhqg.mongodb.net/homezy?retryWrites=true&w=majority&appName=CompleteCoding"
+mongoose.connect(DB_PATH).then(()=>{
+   app.listen(PORT, () => {
     console.log(`Server running on address http://localhost:${PORT}`);
-});
+  })
+}).catch(err =>{
+   console.log("Error while connecting to mongoose",err)
 })
-
