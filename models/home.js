@@ -1,5 +1,4 @@
-const mongoose=require("mongoose");   
-const Favourite=require('./favourite')                                   
+const mongoose=require("mongoose");                                   
 const homeSchema=mongoose.Schema({
   name: {type: String, required: true},
   price: {type: String, required: true},
@@ -9,11 +8,11 @@ const homeSchema=mongoose.Schema({
   description: String
 }) 
 
-homeSchema.pre('findOneAndDelete',async function(next){
-  const homeId=this.getQuery()["_id"];
-  await Favourite.deleteMany({homeId:homeId});
-  next();
-})         
+// homeSchema.pre('findOneAndDelete',async function(next){
+//   const homeId=this.getQuery()["_id"];
+//   await Favourite.deleteMany({homeId:homeId});
+//   next();
+// })         
 
 module.exports=mongoose.model ("Home",homeSchema)
 
