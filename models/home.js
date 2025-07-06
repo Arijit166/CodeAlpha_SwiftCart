@@ -4,7 +4,7 @@ const homeSchema=mongoose.Schema({
   price: {type: String, required: true},
   location: {type: String, required: true},
   rating: {type: String, required: true},
-  imageUrl: String,
+  image: String,
   description: String
 }) 
 

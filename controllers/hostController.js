@@ -1,4 +1,5 @@
 const Home = require("../models/home");
+const fs=require('fs')
 exports.getAddHome = (req, res, next) => {
   res.render("host/edit-home", {
     pageTitle: "Add Home to Homezy",
@@ -44,8 +45,13 @@ exports.getHostHomes = (req, res, next) => {
 };
 
 exports.postAddHome = (req, res, next) => {
-  const { name, price, location, rating, imageUrl, description } = req.body;
-  const home = new Home({name, price, location, rating, imageUrl, description});
+  const { name, price, location, rating, description } = req.body;
+  if (!req.file) {
+    return res.status(400).send("No image file uploaded.");
+  }
+  
+  const home = new Home({name, price, location, rating, image, description});
+  
   home.save().then(()=>{
     console.log("Home saved successfully")
   })
@@ -53,14 +59,21 @@ exports.postAddHome = (req, res, next) => {
 };
 
 exports.postEditHome = (req, res, next) => {
-  const { id, name, price, location, rating, imageUrl, description } = req.body;
+  const { id, name, price, location, rating, description } = req.body;
   Home.findById(id).then((home)=>{
     home.name=name;
     home.price=price;
     home.location=location;
     home.rating=rating;
-    home.imageUrl=imageUrl;
     home.description=description
+    if (req.file) {
+      fs.unlink(home.image, (err)=>{
+        if (err){
+          console.log("Error while deleting file",err)
+        }
+      })
+      home.image = req.file.path; 
+    }
     home.save().then(result=>{
       console.log("Home Updated",result)
   }).catch(err=>{

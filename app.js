@@ -6,6 +6,8 @@ const express = require('express');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const DB_PATH = "mongodb+srv://root:arijit@completecoding.4chqhqg.mongodb.net/homezy?retryWrites=true&w=majority&appName=CompleteCoding";
+const { default: mongoose } = require('mongoose');
+const multer=require('multer')
 
 //Local Module
 const storeRouter = require("./routes/storeRouter")
@@ -13,7 +15,6 @@ const hostRouter = require("./routes/hostRouter")
 const authRouter = require("./routes/authRouter")
 const rootDir = require("./utils/pathUtil");
 const errorsController = require("./controllers/errors");
-const { default: mongoose } = require('mongoose');
 
 const app = express();
 
@@ -25,7 +26,41 @@ const store = new MongoDBStore({
   collection: 'sessions'
 });
 
+const randomString = (length) => {
+  const characters = 'abcdefghijklmnopqrstuvwxyz';
+  let result = '';  
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+}
+
+const storage=multer.diskStorage({
+  destination:(req,file,cb)=>{
+    cb(null,'uploads/')
+  },
+  filename:(req,file,cb)=>{
+    cb(null,randomString(10) + '-' + file.originalname);
+  }
+})
+const fileFilter=(req,file,cb)=>{
+  if(file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg') {
+    cb(null, true);
+  } else {
+    cb(null, false);  
+   }}
+const multerOptions={
+  storage,
+  fileFilter
+}
+
 app.use(express.urlencoded());
+app.use(multer(multerOptions).single("image"))
+app.use(express.static(path.join(rootDir, 'public'))) 
+app.use("/uploads", express.static(path.join(rootDir, 'uploads')))
+app.use("/host/uploads", express.static(path.join(rootDir, 'uploads')))
+app.use("/homes/uploads", express.static(path.join(rootDir, 'uploads')))
+
 app.use(session({
   secret: "KnowledgeGate AI with Complete Coding",
   resave: false,
@@ -48,8 +83,6 @@ app.use("/host", (req, res, next) => {
   }
 });
 app.use("/host", hostRouter);
-
-app.use(express.static(path.join(rootDir, 'public')))
 
 app.use(errorsController.pageNotFound);
 
