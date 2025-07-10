@@ -49,7 +49,7 @@ exports.postAddHome = (req, res, next) => {
   if (!req.file) {
     return res.status(400).send("No image file uploaded.");
   }
-  
+  const image=req.file.path
   const home = new Home({name, price, location, rating, image, description});
   
   home.save().then(()=>{
