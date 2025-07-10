@@ -32,7 +32,7 @@ Ensure the following are installed:
 
 ```bash
 # 📁 Clone the repository
-git clone https://github.com/your-username/homezy.git
+git clone https://github.com/Arijit166/homezy.git
 cd homezy
 
 # 📦 Install dependencies
