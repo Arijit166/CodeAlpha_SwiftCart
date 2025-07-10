@@ -22,7 +22,18 @@
                   <span class="text-gray-700"><%= home.rating %></span>
                 </div>
               </div>
-              <button class="bg-green-300 p-2">Book</button>
+                  <% if (bookedHomeIds.includes(home._id.toString())) { %>
+                    <button disabled class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                      ✅ Booked
+                    </button>
+                  <% } else { %>
+                    <form action="/bookings" method="POST">
+                      <input type="hidden" name="id" value="<%= home._id %>">
+                      <button class="bg-green-300 p-2 hover:bg-green-500" type="submit">
+                        Book Now
+                      </button>
+                    </form>
+                  <% } %>
             </div>
           </div>
         <% }) %>
