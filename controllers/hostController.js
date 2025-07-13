@@ -49,14 +49,25 @@ exports.postAddHome = (req, res, next) => {
   if (!req.file) {
     return res.status(400).send("No image file uploaded.");
   }
-  const image=req.file.path
-  const home = new Home({name, price, location, rating, image, description});
-  
-  home.save().then(()=>{
-    console.log("Home saved successfully")
-  })
-  res.redirect("/host/host-home-list");
+  const image = req.file.path;
+  const home = new Home({ name, price, location, rating, image, description });
+
+  home.save()
+    .then(() => {
+      console.log("Home saved successfully");
+      res.render("host/home-added", {
+        pageTitle: "Home Added Successfully",
+        currentPage: "",
+        isLoggedIn: req.isLoggedIn,
+        user: req.session.user
+      });
+    })
+    .catch(err => {
+      console.log("Error while saving home", err);
+      res.status(500).send("Something went wrong.");
+    });
 };
+
 
 exports.postEditHome = (req, res, next) => {
   const { id, name, price, location, rating, description } = req.body;
