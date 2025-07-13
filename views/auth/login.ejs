@@ -1,5 +1,31 @@
 <%- include('../partials/head') %>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    /* Prevent any background color changes on input fields */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.2) inset !important;
+      -webkit-text-fill-color: white !important;
+      background-color: rgba(255, 255, 255, 0.2) !important;
+      transition: background-color 5000s ease-in-out 0s !important;
+    }
+    
+    /* Force consistent styling for all input states */
+    input {
+      background-color: rgba(255, 255, 255, 0.2) !important;
+      color: white !important;
+    }
+    
+    /* Override any browser default styling */
+    
+    input[type="email"]:focus,
+    input[type="password"]:focus {
+      background-color: rgba(255, 255, 255, 0.2) !important;
+      color: white !important;
+    }
+  </style>
   </head>
   <body class="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 relative">
     <%- include('../partials/nav') %>
