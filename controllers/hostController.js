@@ -96,12 +96,40 @@ exports.postEditHome = (req, res, next) => {
 })
 };
 
-exports.postDeleteHome = (req, res, next) => {
-  const homeId=req.params.homeId
-  console.log("Came to delete homeId",homeId)
-  Home.findByIdAndDelete(homeId).then(() =>{
-    res.redirect("/host/host-home-list");
-  }).catch(error =>{
-    console.log("Error while deleting ",error)
-  })
-}
+const path = require('path');
+const rootDir = path.dirname(require.main.filename);
+
+ exports.postDeleteHome = (req, res, next) => {
+  const homeId = req.params.homeId;
+  console.log("Came to delete homeId", homeId);
+
+  Home.findById(homeId)
+    .then((home) => {
+      if (!home) {
+        console.log("Home not found");
+        return res.redirect("/host/host-home-list");
+      }
+
+      // Absolute path to the image file
+      const imagePath = path.join(rootDir, home.image);
+
+      // Delete the image file
+      fs.unlink(imagePath, (err) => {
+        if (err) {
+          console.log("Error deleting image file:", err);
+        } else {
+          console.log("Image file deleted:", imagePath);
+        }
+      });
+
+      // Delete the document from the DB
+      return Home.findByIdAndDelete(homeId);
+    })
+    .then(() => {
+      res.redirect("/host/host-home-list");
+    })
+    .catch((error) => {
+      console.log("Error while deleting home:", error);
+    });
+};
+
