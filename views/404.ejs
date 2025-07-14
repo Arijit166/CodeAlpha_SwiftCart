@@ -1,15 +1,101 @@
 <%- include('partials/head') %>
-  </head>
-  <body>
-    <%- include('partials/nav') %>
-    <main class="container mx-auto mt-20 text-center">
-      <h2 class="text-6xl font-bold text-red-500 mb-4">404</h2>
-      <p class="text-2xl text-gray-700 mb-8">Oops! Page Not Found</p>
-      <a
-        href="/"
-        class="bg-red-500 text-white py-2 px-6 rounded-lg hover:bg-red-600 transition duration-300"
-        >Go Back Home</a
-      >
-    </main>
-  </body>
+</head>
+<body>
+  <%- include('partials/nav') %>
+  
+  <div class="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 relative overflow-hidden">
+    <!-- Animated Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+      <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-pink-500 to-red-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-2000"></div>
+      <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-4000"></div>
+    </div>
+
+    <div class="relative container mx-auto px-4 py-12 z-10">
+      <main class="text-center mt-20">
+        <!-- Error Code -->
+        <div class="mb-8">
+          <h2 class="text-8xl md:text-9xl font-black text-white mb-4 drop-shadow-2xl">
+            <span class="bg-gradient-to-r from-red-400 via-pink-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
+              404
+            </span>
+          </h2>
+        </div>
+
+        <!-- Error Message -->
+        <div class="mb-12">
+          <p class="text-3xl md:text-4xl font-bold text-white mb-4 drop-shadow-lg">
+            Oops! Page Not Found
+          </p>
+          <p class="text-xl md:text-2xl text-gray-200 font-light max-w-2xl mx-auto leading-relaxed drop-shadow-lg">
+            The page you're looking for seems to have wandered off into the digital wilderness ✨
+          </p>
+        </div>
+
+        <!-- Decorative Line -->
+        <div class="mb-12 flex justify-center">
+          <div class="h-1 w-24 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full animate-pulse"></div>
+        </div>
+
+        <!-- Back to Home Button -->
+        <div class="flex justify-center">
+          <div class="w-full max-w-xs">
+            <a
+              href="/"
+              class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-center py-3 px-6 rounded-xl font-bold transition-all duration-300 shadow-lg transform hover:scale-105 hover:shadow-xl inline-block"
+            >
+              <span class="flex items-center justify-center">
+                <span class="mr-2">🏠</span>
+                Go Back Home
+                <span class="ml-2">✨</span>
+              </span>
+            </a>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <style>
+    @keyframes pulse {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 0.4; }
+    }
+    
+    .animation-delay-2000 {
+      animation-delay: 2s;
+    }
+    
+    .animation-delay-4000 {
+      animation-delay: 4s;
+    }
+    
+    .animate-pulse {
+      animation: pulse 3s ease-in-out infinite;
+    }
+    
+    /* Glassmorphism effect */
+    .backdrop-blur-xl {
+      backdrop-filter: blur(16px);
+    }
+    
+    .backdrop-blur-sm {
+      backdrop-filter: blur(4px);
+    }
+    
+    /* Hover animations */
+    .group:hover .transform {
+      transform: translateY(-8px) scale(1.05);
+    }
+    
+    /* Text shadow for better readability */
+    .drop-shadow-lg {
+      filter: drop-shadow(0 10px 8px rgb(0 0 0 / 0.04)) drop-shadow(0 4px 3px rgb(0 0 0 / 0.1));
+    }
+    
+    .drop-shadow-2xl {
+      filter: drop-shadow(0 25px 25px rgb(0 0 0 / 0.15));
+    }
+  </style>
+</body>
 </html>
