@@ -63,46 +63,84 @@ exports.postBookings = async (req, res, next) => {
   const homeId = req.body.id;
   const userId = req.session.user._id;
 
-  const user = await User.findById(userId); // 🚫 no populate here
+  try {
+    const user = await User.findById(userId);
 
-  // Don't create the field if it doesn't exist and nothing needs to be saved
-  if (user.bookings && user.bookings.some(b => b.toString() === homeId)) {
-    return res.redirect("/bookings");
-  }
+    // Check if user already has this home booked
+    if (user.bookings && user.bookings.some(b => b.toString() === homeId)) {
+      return res.redirect("/bookings");
+    }
 
-  if (user.bookings && user.bookings.length > 0) {
-    return res.render("store/bookings", {
-      bookingHomes: await User.findById(userId).populate('bookings').then(u => u.bookings),
-      pageTitle: "My Bookings",
-      currentPage: "bookings",
+    // Check if user already has a booking (only one booking allowed)
+    if (user.bookings && user.bookings.length > 0) {
+      const userWithBookings = await User.findById(userId).populate('bookings');
+      return res.render("store/bookings", {
+        bookingHomes: userWithBookings.bookings,
+        pageTitle: "My Bookings",
+        currentPage: "bookings",
+        isLoggedIn: req.isLoggedIn,
+        user: req.session.user,
+        errorMessage: "❗ You can book only one home at a time.",
+      });
+    }
+
+    // Add the new booking
+    if (!user.bookings) {
+      user.bookings = [homeId];
+    } else {
+      user.bookings.push(homeId);
+    }
+
+    await user.save();
+    res.redirect("/bookings");
+
+  } catch (err) {
+    console.error("Error in postBookings:", err);
+    res.status(500).render("error/500", {
+      pageTitle: "Error",
       isLoggedIn: req.isLoggedIn,
       user: req.session.user,
-      errorMessage: "❗ You can book  only one home at a time.",
     });
   }
-
-  // Only now assign and save
-  if (!user.bookings) {
-    user.bookings = [homeId]; // ✅ creates the field only if it didn't exist
-  } else {
-    user.bookings.push(homeId);
-  }
-
-  await user.save();
-  res.redirect("/bookings");
 };
 
 exports.postCancelBookings = async (req, res, next) => {
   const homeId = req.params.homeId;
   const userId = req.session.user._id;
-  const user = await User.findById(userId);
-  if (user.bookings.includes(homeId)) {
-    user.bookings = user.bookings.filter(book => book != homeId);
-    await user.save();
-  }
-  res.redirect("/");
-};
 
+  try {
+    // Find the user and remove the booking
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).render("error/404", {
+        pageTitle: "User Not Found",
+        isLoggedIn: req.isLoggedIn,
+        user: req.session.user,
+      });
+    }
+
+    // Check if the booking exists
+    if (!user.bookings || !user.bookings.includes(homeId)) {
+      return res.redirect("/bookings");
+    }
+
+    // Remove the booking
+    user.bookings = user.bookings.filter(book => book.toString() !== homeId);
+    await user.save();
+
+    // Redirect to home page with success (as per original logic)
+    res.redirect("/");
+
+  } catch (err) {
+    console.error("Error in postCancelBookings:", err);
+    res.status(500).render("error/500", {
+      pageTitle: "Error",
+      isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
+    });
+  }
+};
 
 exports.getFavouriteList = async (req, res, next) => {
   const userId = req.session.user._id;
