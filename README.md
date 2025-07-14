@@ -56,7 +56,9 @@ Edit
   "dev": "nodemon app.js",
   "start": "node app.js"
 }
-✅ Features
+```
+
+### ✅ Features
 🏡 Beautiful and responsive home booking layout
 
 🔄 Dynamic UI based on user type (Host / Guest)
@@ -82,8 +84,8 @@ Edit
 
 📊 Booking analytics (for hosts)
 
-📄 License
+### 📄 License
 Licensed under the MIT License.
 
-💡 Contributions are welcome!
+<b>💡 Contributions are welcome!</b>
 Feel free to fork this project and enhance Homezy further.
