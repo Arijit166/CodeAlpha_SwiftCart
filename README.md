@@ -1,7 +1,8 @@
 # 🏠 Homezy
 
-**Homezy** is a responsive web platform for booking and exploring rental homes, crafted using Node.js, Express, EJS templating, and styled with Tailwind CSS. It focuses on delivering a smooth user interface using server-side rendering and modern styling practices.
+**Homezy** is a modern and responsive rental home booking platform built with **Node.js**, **Express**, and **Mongoose**, using **EJS** templating for dynamic server-side rendering and **Tailwind CSS** for sleek UI styling. Designed with distinct views for hosts and guests, Homezy delivers a clean, user-friendly experience with full authentication and booking capabilities.
 
+---
 
 ## 🧰 Tech Stack
 
@@ -9,38 +10,43 @@
 - 🧱 HTML5
 - 🎨 Tailwind CSS
 - 📜 EJS (Embedded JavaScript Templating)
+- ⚡ JavaScript
 
 ### 🛠️ Backend
 - ⚙️ Node.js
 - 🚀 Express.js
+- 🛢️ MongoDB (via Mongoose)
 
 ### ⚒️ Dev Tools
 - 📦 npm (Node Package Manager)
 - 🔁 Nodemon (for live reload)
 - 🌍 Git & GitHub
 
+---
+
 ## 🚀 Getting Started
 
 ### 📋 Prerequisites
 
-Ensure the following are installed:
+Make sure you have the following installed:
 
 - [📥 Node.js](https://nodejs.org/)
 - [📦 npm](https://www.npmjs.com/)
+- [🍃 MongoDB](https://www.mongodb.com/)
 
 ### 📦 Installation
 
 ```bash
 # 📁 Clone the repository
 git clone https://github.com/Arijit166/homezy.git
-cd homezy
+cd Homezy
 
 # 📦 Install dependencies
 npm install
 
 # ▶️ Start the development server
 npm run dev
-🌐 Visit http://localhost:2006/ to view the project locally.
+🔗 Visit: http://localhost:2006/ to access Homezy locally.
 
 🧾 Scripts
 json
@@ -50,33 +56,34 @@ Edit
   "dev": "nodemon app.js",
   "start": "node app.js"
 }
-```
-
-### ✅ Features (Implemented)
-
+✅ Features
 🏡 Beautiful and responsive home booking layout
 
-♻️ EJS partials for reusable templates
+🔄 Dynamic UI based on user type (Host / Guest)
 
-📱 Mobile-friendly design with Tailwind CSS
+📝 Signup and Login with full authentication & authorization
 
-🧭 Routing using Express
+🧾 Booking system with server-side management
 
-🔧 Clean and modular file structure
+♻️ Reusable EJS partials for layout consistency
 
-### 🔮 Planned Features
+📱 Mobile-optimized design using Tailwind CSS
 
-🗂️ Backend integration with MongoDB
+🧭 Modular routing via Express
 
-🔐 User authentication (Login/Signup)
+🧰 Mongoose-based MongoDB integration
 
-🗓️ Booking system with calendar support
+🔮 Planned Features
+📆 Calendar integration for booking dates
 
-🧳 Host dashboard for managing properties
+🧳 Host dashboard to manage listed homes
 
-☁️ Image uploads with Cloudinary or similar service
+☁️ Cloud-based image upload (e.g., Cloudinary)
 
-### 📄 License
+📊 Booking analytics (for hosts)
+
+📄 License
 Licensed under the MIT License.
 
-**💡 Contributions are welcome. Feel free to fork and enhance Homezy!**
+💡 Contributions are welcome!
+Feel free to fork this project and enhance Homezy further.
