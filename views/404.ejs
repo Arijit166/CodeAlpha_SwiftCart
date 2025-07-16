@@ -55,47 +55,179 @@
       </main>
     </div>
   </div>
-
-  <style>
-    @keyframes pulse {
-      0%, 100% { opacity: 0.2; }
-      50% { opacity: 0.4; }
-    }
-    
-    .animation-delay-2000 {
-      animation-delay: 2s;
-    }
-    
-    .animation-delay-4000 {
-      animation-delay: 4s;
-    }
-    
-    .animate-pulse {
-      animation: pulse 3s ease-in-out infinite;
-    }
-    
-    /* Glassmorphism effect */
-    .backdrop-blur-xl {
-      backdrop-filter: blur(16px);
-    }
-    
-    .backdrop-blur-sm {
-      backdrop-filter: blur(4px);
-    }
-    
-    /* Hover animations */
-    .group:hover .transform {
-      transform: translateY(-8px) scale(1.05);
-    }
-    
-    /* Text shadow for better readability */
-    .drop-shadow-lg {
-      filter: drop-shadow(0 10px 8px rgb(0 0 0 / 0.04)) drop-shadow(0 4px 3px rgb(0 0 0 / 0.1));
-    }
-    
-    .drop-shadow-2xl {
-      filter: drop-shadow(0 25px 25px rgb(0 0 0 / 0.15));
-    }
-  </style>
 </body>
 </html>
+<style>
+  @keyframes pulse {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 0.4; }
+  }
+  
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+  
+  .animate-pulse {
+    animation: pulse 3s ease-in-out infinite;
+  }
+  
+  /* Glassmorphism effect */
+  .backdrop-blur-xl {
+    backdrop-filter: blur(16px);
+  }
+  
+  .backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+  }
+  
+  /* Hover animations */
+  .group:hover .transform {
+    transform: translateY(-8px) scale(1.05);
+  }
+  
+  /* Text shadow for better readability */
+  .drop-shadow-lg {
+    filter: drop-shadow(0 10px 8px rgb(0 0 0 / 0.04)) drop-shadow(0 4px 3px rgb(0 0 0 / 0.1));
+  }
+  
+  .drop-shadow-2xl {
+    filter: drop-shadow(0 25px 25px rgb(0 0 0 / 0.15));
+  }
+
+/* Blinking Stars Styles */
+  .star {
+    position: fixed;
+    color: white;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 5;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+  }
+
+  @keyframes blink {
+    0%, 50% { opacity: 0; }
+    51%, 100% { opacity: 1; }
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+
+  .star-blink {
+    animation: blink 2s infinite;
+  }
+
+  .star-twinkle {
+    animation: twinkle 3s infinite;
+  }
+
+  .star-slow {
+    animation: blink 4s infinite;
+  }
+</style>
+
+<script>
+  // Blinking Stars Script
+  function createStars() {
+    const starContainer = document.body;
+    const numberOfStars = 50;
+    const starSymbols = ['✦', '✧', '⭐', '✨', '⋆', '★', '☆'];
+    const animationClasses = ['star-blink', 'star-twinkle', 'star-slow'];
+
+    for (let i = 0; i < numberOfStars; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      
+      // Random star symbol
+      star.textContent = starSymbols[Math.floor(Math.random() * starSymbols.length)];
+      
+      // Random position
+      let left = Math.random() * 100;
+      let top = Math.random() * 100;
+      
+      // Check if star would overlap with signup box area (roughly center area)
+      // Signup box is roughly centered, so avoid the middle 40% width and height
+      const signupBoxLeft = 30; // roughly 30% from left
+      const signupBoxRight = 70; // roughly 70% from left
+      const signupBoxTop = 20; // roughly 20% from top
+      const signupBoxBottom = 80; // roughly 80% from top
+      
+      // If star would be in signup box area, reposition it
+      if (left > signupBoxLeft && left < signupBoxRight && top > signupBoxTop && top < signupBoxBottom) {
+        // Move to edges instead
+        if (Math.random() < 0.5) {
+          left = Math.random() < 0.5 ? Math.random() * 25 : 75 + Math.random() * 25; // left or right edge
+        } else {
+          top = Math.random() < 0.5 ? Math.random() * 15 : 85 + Math.random() * 15; // top or bottom edge
+        }
+      }
+      
+      star.style.left = left + '%';
+      star.style.top = top + '%';
+      
+      // Random size
+      const size = Math.random() * 8 + 8; // 8px to 16px
+      star.style.fontSize = size + 'px';
+      
+      // Random animation
+      const animationClass = animationClasses[Math.floor(Math.random() * animationClasses.length)];
+      star.classList.add(animationClass);
+      
+      // Random animation delay
+      star.style.animationDelay = Math.random() * 3 + 's';
+      
+      // Random opacity
+      star.style.opacity = Math.random() * 0.8 + 0.2;
+      
+      starContainer.appendChild(star);
+    }
+  }
+
+  // Create stars when page loads
+  document.addEventListener('DOMContentLoaded', createStars);
+
+  // Optional: Add more stars periodically
+  setInterval(() => {
+    // Remove old stars occasionally to prevent too many elements
+    const existingStars = document.querySelectorAll('.star');
+    if (existingStars.length > 100) {
+      existingStars[0].remove();
+    }
+    
+    // Add a new star occasionally
+    if (Math.random() < 0.1) { // 10% chance every interval
+      const star = document.createElement('div');
+      star.className = 'star star-twinkle';
+      star.textContent = ['✦', '✧', '⭐', '✨', '⋆'][Math.floor(Math.random() * 5)];
+      
+      let left = Math.random() * 100;
+      let top = Math.random() * 100;
+      
+      // Avoid signup box area for new stars too
+      const signupBoxLeft = 30;
+      const signupBoxRight = 70;
+      const signupBoxTop = 20;
+      const signupBoxBottom = 80;
+      
+      if (left > signupBoxLeft && left < signupBoxRight && top > signupBoxTop && top < signupBoxBottom) {
+        if (Math.random() < 0.5) {
+          left = Math.random() < 0.5 ? Math.random() * 25 : 75 + Math.random() * 25;
+        } else {
+          top = Math.random() < 0.5 ? Math.random() * 15 : 85 + Math.random() * 15;
+        }
+      }
+      
+      star.style.left = left + '%';
+      star.style.top = top + '%';
+      star.style.fontSize = (Math.random() * 8 + 8) + 'px';
+      star.style.animationDelay = Math.random() * 3 + 's';
+      star.style.opacity = Math.random() * 0.8 + 0.2;
+      document.body.appendChild(star);
+    }
+  }, 5000); // Check every 5 seconds
+</script>
