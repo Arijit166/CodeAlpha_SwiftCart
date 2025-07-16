@@ -39,13 +39,13 @@
           <span class="block text-2xl md:text-5xl lg:text-5xl text-white">
             Create Your Account on
           </span>
-          <span class="bg-gradient-to-r from-cyan-400 via-purple-300 to-pink-300 bg-clip-text text-transparent animate-pulse">
+          <span class="bg-gradient-to-r from-cyan-400 via-purple-300 to-pink-300 bg-clip-text text-transparent">
             Homezy
           </span>
         </h1>
         
         <div class="mt-8 flex justify-center">
-          <div class="h-1 w-24 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full animate-pulse"></div>
+          <div class="h-1 w-24 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full"></div>
         </div>
       </div>
       
@@ -167,3 +167,155 @@
     </main>
   </body>
 </html>
+<style>
+/* Blinking Stars Styles */
+  .star {
+    position: absolute;
+    color: white;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 5;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+  }
+
+  @keyframes blink {
+    0%, 50% { opacity: 0; }
+    51%, 100% { opacity: 1; }
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+
+  .star-blink {
+    animation: blink 2s infinite;
+  }
+
+  .star-twinkle {
+    animation: twinkle 3s infinite;
+  }
+
+  .star-slow {
+    animation: blink 4s infinite;
+  }
+</style>
+
+<script>
+  // Blinking Stars Script
+  function createStars() {
+    const starContainer = document.body;
+    const numberOfStars = 50;
+    const starSymbols = ['✦', '✧', '⭐', '✨', '⋆', '★', '☆'];
+    const animationClasses = ['star-blink', 'star-twinkle', 'star-slow'];
+
+    for (let i = 0; i < numberOfStars; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      
+      // Random star symbol
+      star.textContent = starSymbols[Math.floor(Math.random() * starSymbols.length)];
+      
+      // Random position
+      let left = Math.random() * 100;
+      let top = Math.random() * 100;
+      
+      // More precise check for signup box area
+      const signupBox = document.querySelector('.max-w-2xl');
+      if (signupBox) {
+        const rect = signupBox.getBoundingClientRect();
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        
+        // Convert to percentage
+        const signupBoxLeft = (rect.left / windowWidth) * 100;
+        const signupBoxRight = (rect.right / windowWidth) * 100;
+        const signupBoxTop = (rect.top / windowHeight) * 100;
+        const signupBoxBottom = (rect.bottom / windowHeight) * 100;
+        
+        // If star would be in signup box area with some padding, reposition it
+        if (left > signupBoxLeft - 5 && left < signupBoxRight + 5 && 
+            top > signupBoxTop - 5 && top < signupBoxBottom + 5) {
+          // Move to edges instead
+          if (Math.random() < 0.5) {
+            left = Math.random() < 0.5 ? Math.random() * 20 : 80 + Math.random() * 20;
+          } else {
+            top = Math.random() < 0.5 ? Math.random() * 10 : 90 + Math.random() * 10;
+          }
+        }
+      }
+      
+      star.style.left = left + '%';
+      star.style.top = top + '%';
+      
+      // Random size
+      const size = Math.random() * 8 + 8; // 8px to 16px
+      star.style.fontSize = size + 'px';
+      
+      // Random animation
+      const animationClass = animationClasses[Math.floor(Math.random() * animationClasses.length)];
+      star.classList.add(animationClass);
+      
+      // Random animation delay
+      star.style.animationDelay = Math.random() * 3 + 's';
+      
+      // Random opacity
+      star.style.opacity = Math.random() * 0.8 + 0.2;
+      
+      starContainer.appendChild(star);
+    }
+  }
+
+  // Create stars when page loads
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(createStars, 100); // Small delay to ensure DOM is ready
+  });
+
+  // Optional: Add more stars periodically
+  setInterval(() => {
+    // Remove old stars occasionally to prevent too many elements
+    const existingStars = document.querySelectorAll('.star');
+    if (existingStars.length > 100) {
+      existingStars[0].remove();
+    }
+    
+    // Add a new star occasionally
+    if (Math.random() < 0.1) { // 10% chance every interval
+      const star = document.createElement('div');
+      star.className = 'star star-twinkle';
+      star.textContent = ['✦', '✧', '⭐', '✨', '⋆'][Math.floor(Math.random() * 5)];
+      
+      let left = Math.random() * 100;
+      let top = Math.random() * 100;
+      
+      // Avoid signup box area for new stars too
+      const signupBox = document.querySelector('.max-w-2xl');
+      if (signupBox) {
+        const rect = signupBox.getBoundingClientRect();
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        
+        const signupBoxLeft = (rect.left / windowWidth) * 100;
+        const signupBoxRight = (rect.right / windowWidth) * 100;
+        const signupBoxTop = (rect.top / windowHeight) * 100;
+        const signupBoxBottom = (rect.bottom / windowHeight) * 100;
+        
+        if (left > signupBoxLeft - 5 && left < signupBoxRight + 5 && 
+            top > signupBoxTop - 5 && top < signupBoxBottom + 5) {
+          if (Math.random() < 0.5) {
+            left = Math.random() < 0.5 ? Math.random() * 20 : 80 + Math.random() * 20;
+          } else {
+            top = Math.random() < 0.5 ? Math.random() * 10 : 90 + Math.random() * 10;
+          }
+        }
+      }
+      
+      star.style.left = left + '%';
+      star.style.top = top + '%';
+      star.style.fontSize = (Math.random() * 8 + 8) + 'px';
+      star.style.animationDelay = Math.random() * 3 + 's';
+      star.style.opacity = Math.random() * 0.8 + 0.2;
+      document.body.appendChild(star);
+    }
+  }, 5000); // Check every 5 seconds
+</script>
