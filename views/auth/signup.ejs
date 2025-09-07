@@ -133,15 +133,15 @@
           <div class="p-6 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
             <p class="text-sm font-medium text-white/90 mb-4">I want to register as:</p>
             <div class="flex space-x-8">
-              <label class="inline-flex items-center cursor-pointer text-white/80 hover:text-white transition duration-300">
-                <input type="radio" name="userType" value="guest" id="guest" class="form-radio text-purple-400 focus:ring-purple-400 bg-white/20 border-white/30" checked="<% oldInput.userType === "guest"%>" onchange="toggleHostKey()" />
-                <span class="ml-3 font-medium">Guest</span>
-              </label>
-              <label class="inline-flex items-center cursor-pointer text-white/80 hover:text-white transition duration-300">
-                <input type="radio" name="userType" value="host" id="host" class="form-radio text-purple-400 focus:ring-purple-400 bg-white/20 border-white/30" checked="<% oldInput.userType === "host"%>" onchange="toggleHostKey()" />
-                <span class="ml-3 font-medium">Host</span>
-              </label>
-            </div>
+                <label class="inline-flex items-center cursor-pointer text-white/80 hover:text-white transition duration-300">
+                  <input type="radio" name="userType" value="guest" id="guest" class="form-radio text-purple-400 focus:ring-purple-400 bg-white/20 border-white/30" checked onchange="toggleHostKey()" />
+                  <span class="ml-3 font-medium">Guest</span>
+                </label>
+                <label class="inline-flex items-center cursor-pointer text-white/80 hover:text-white transition duration-300">
+                  <input type="radio" name="userType" value="host" id="host" class="form-radio text-purple-400 focus:ring-purple-400 bg-white/20 border-white/30" onchange="toggleHostKey()" />
+                  <span class="ml-3 font-medium">Host</span>
+                </label>
+              </div>
             <!-- Host Key Field (initially hidden) -->
             <div id="hostKeySection" class="mt-4 hidden transition-all duration-300">
               <div class="relative">
@@ -338,26 +338,8 @@
       document.body.appendChild(star);
     }
   }, 5000); // Check every 5 seconds
-  function toggleHostKey() {
-    const hostRadio = document.getElementById('host');
-    const hostKeySection = document.getElementById('hostKeySection');
-    const hostKeyError = document.getElementById('hostKeyError');
-    const hostKeySuccess = document.getElementById('hostKeySuccess');
-    const hostKeyInput = document.getElementById('hostKey');
-    
-    if (hostRadio.checked) {
-      hostKeySection.classList.remove('hidden');
-      hostKeySection.classList.add('block');
-      hostKeyInput.required = true;
-    } else {
-      hostKeySection.classList.add('hidden');
-      hostKeySection.classList.remove('block');
-      hostKeyError.classList.add('hidden');
-      hostKeySuccess.classList.add('hidden');
-      hostKeyInput.required = false;
-      hostKeyInput.value = '';
-    }
-  }
+  
+  let isHostKeyValid = false;
 
   function validateHostKey() {
     const hostKeyInput = document.getElementById('hostKey');
@@ -369,23 +351,112 @@
     
     const enteredKey = hostKeyInput.value.trim();
     
-    if (enteredKey === '') return;
+    if (enteredKey === '') {
+      isHostKeyValid = false;
+      return;
+    }
     
-    if (enteredKey === 'Pikachu') {
-      hostKeyError.classList.add('hidden');
-      hostKeySuccess.classList.remove('hidden');
-      hostKeyInput.classList.remove('border-red-400');
-      hostKeyInput.classList.add('border-green-400');
+    // Send AJAX request to validate host key on server
+    fetch('/validate-host-key', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ hostKey: enteredKey })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.valid) {
+        hostKeyError.classList.add('hidden');
+        hostKeySuccess.classList.remove('hidden');
+        hostKeyInput.classList.remove('border-red-400');
+        hostKeyInput.classList.add('border-green-400');
+        isHostKeyValid = true;
+      } else {
+        hostKeySuccess.classList.add('hidden');
+        hostKeyError.classList.remove('hidden');
+        hostKeyInput.classList.remove('border-green-400');
+        hostKeyInput.classList.add('border-red-400');
+        isHostKeyValid = false;
+      }
+    })
+    .catch(error => {
+      console.error('Error validating host key:', error);
+      isHostKeyValid = false;
+    });
+  }
+
+  function toggleHostKey() {
+    const hostRadio = document.getElementById('host');
+    const hostKeySection = document.getElementById('hostKeySection');
+    const hostKeyError = document.getElementById('hostKeyError');
+    const hostKeySuccess = document.getElementById('hostKeySuccess');
+    const hostKeyInput = document.getElementById('hostKey');
+    
+    if (hostRadio.checked) {
+      hostKeySection.classList.remove('hidden');
+      hostKeySection.classList.add('block');
+      hostKeyInput.required = true;
+      isHostKeyValid = false;
     } else {
+      hostKeySection.classList.add('hidden');
+      hostKeySection.classList.remove('block');
+      hostKeyError.classList.add('hidden');
       hostKeySuccess.classList.add('hidden');
-      hostKeyError.classList.remove('hidden');
-      hostKeyInput.classList.remove('border-green-400');
-      hostKeyInput.classList.add('border-red-400');
+      hostKeyInput.required = false;
+      hostKeyInput.value = '';
+      isHostKeyValid = true; // Guest doesn't need host key
     }
   }
 
+  // Add form submission validation
+  document.querySelector('form').addEventListener('submit', function(e) {
+    const hostRadio = document.getElementById('host');
+    const hostKeyInput = document.getElementById('hostKey');
+    const hostKeyError = document.getElementById('hostKeyError');
+    
+    if (hostRadio.checked) {
+      if (!hostKeyInput.value.trim()) {
+        e.preventDefault();
+        hostKeyError.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Please enter the host key before submitting';
+        hostKeyError.classList.remove('hidden');
+        hostKeyInput.classList.add('border-red-400');
+        hostKeyInput.focus();
+        return false;
+      }
+      if (!isHostKeyValid) {
+        e.preventDefault();
+        hostKeyError.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Please enter a valid host key before submitting';
+        hostKeyError.classList.remove('hidden');
+        hostKeyInput.classList.add('border-red-400');
+        hostKeyInput.focus();
+        return false;
+      }
+    }
+  });
+
   // Initialize on page load
   document.addEventListener('DOMContentLoaded', function() {
+    isHostKeyValid = true; // Start as guest by default
     toggleHostKey();
-  });
+    
+    // Add input event listener to reset validation when user types
+    const hostKeyInput = document.getElementById('hostKey');
+    if (hostKeyInput) {
+      hostKeyInput.addEventListener('input', function() {
+        const hostRadio = document.getElementById('host');
+        if (hostRadio && hostRadio.checked) {
+          // Reset validation state when user starts typing
+          isHostKeyValid = false;
+          const hostKeyError = document.getElementById('hostKeyError');
+          const hostKeySuccess = document.getElementById('hostKeySuccess');
+          
+          // Hide all messages while typing
+          hostKeyError.classList.add('hidden');
+          hostKeySuccess.classList.add('hidden');
+          hostKeyInput.classList.remove('border-red-400', 'border-green-400');
+        }
+      });
+    }
+});
 </script>

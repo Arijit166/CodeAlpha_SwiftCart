@@ -1,3 +1,4 @@
+require('dotenv').config();
 // Core Module
 const path = require('path');
 
@@ -5,7 +6,7 @@ const path = require('path');
 const express = require('express');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
-const DB_PATH = "mongodb+srv://arijit:arijit@swiftcart.pfo5pyw.mongodb.net/";
+const DB_PATH = process.env.MONGODB_URI;
 const { default: mongoose } = require('mongoose');
 const multer=require('multer')
 
@@ -55,6 +56,7 @@ const multerOptions={
 }
 
 app.use(express.urlencoded());
+app.use(express.json());
 app.use(multer(multerOptions).single("image"))
 app.use(express.static(path.join(rootDir, 'public'))) 
 app.use("/uploads", express.static(path.join(rootDir, 'uploads')))
@@ -62,7 +64,7 @@ app.use("/host/uploads", express.static(path.join(rootDir, 'uploads')))
 app.use("/homes/uploads", express.static(path.join(rootDir, 'uploads')))
 
 app.use(session({
-  secret: "KnowledgeGate AI with Complete Coding",
+  secret: process.env.SESSION_SECRET || "fallback-secret-key",
   resave: false,
   saveUninitialized: true,
   store

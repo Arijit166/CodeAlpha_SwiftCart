@@ -142,6 +142,19 @@ exports.postLogin = async (req, res, next) => {
   await req.session.save();
   res.redirect("/");
 }
+exports.postValidateHostKey = (req, res, next) => {
+  const { hostKey } = req.body;
+  const validHostKey = process.env.HOST_KEY;
+   // Debug logging - remove these after fixing
+  console.log('Received hostKey:', hostKey);
+  console.log('Expected hostKey from env:', validHostKey);
+  console.log('Are they equal?', hostKey === validHostKey);
+  console.log('Type of received:', typeof hostKey);
+  console.log('Type of env:', typeof validHostKey)
+  res.json({
+    valid: hostKey === validHostKey
+  });
+};
 
 exports.postLogout = (req, res, next) => {
   req.session.destroy(() => {
