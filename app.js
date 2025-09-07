@@ -5,7 +5,7 @@ const path = require('path');
 const express = require('express');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
-const DB_PATH = "mongodb+srv://root:arijit@completecoding.4chqhqg.mongodb.net/homezy?retryWrites=true&w=majority&appName=CompleteCoding";
+const DB_PATH = "mongodb+srv://arijit:arijit@swiftcart.pfo5pyw.mongodb.net/";
 const { default: mongoose } = require('mongoose');
 const multer=require('multer')
 

@@ -40,7 +40,7 @@
             Create Your Account on
           </span>
           <span class="bg-gradient-to-r from-cyan-400 via-purple-300 to-pink-300 bg-clip-text text-transparent">
-            Homezy
+            SwiftCart
           </span>
         </h1>
         
@@ -134,16 +134,36 @@
             <p class="text-sm font-medium text-white/90 mb-4">I want to register as:</p>
             <div class="flex space-x-8">
               <label class="inline-flex items-center cursor-pointer text-white/80 hover:text-white transition duration-300">
-                <input type="radio" name="userType" value="guest" id="guest" class="form-radio text-purple-400 focus:ring-purple-400 bg-white/20 border-white/30" checked="<% oldInput.userType === "guest"%>" />
+                <input type="radio" name="userType" value="guest" id="guest" class="form-radio text-purple-400 focus:ring-purple-400 bg-white/20 border-white/30" checked="<% oldInput.userType === "guest"%>" onchange="toggleHostKey()" />
                 <span class="ml-3 font-medium">Guest</span>
               </label>
               <label class="inline-flex items-center cursor-pointer text-white/80 hover:text-white transition duration-300">
-                <input type="radio" name="userType" value="host" id="host" class="form-radio text-purple-400 focus:ring-purple-400 bg-white/20 border-white/30" checked="<% oldInput.userType === "host"%>"/>
+                <input type="radio" name="userType" value="host" id="host" class="form-radio text-purple-400 focus:ring-purple-400 bg-white/20 border-white/30" checked="<% oldInput.userType === "host"%>" onchange="toggleHostKey()" />
                 <span class="ml-3 font-medium">Host</span>
               </label>
             </div>
+            <!-- Host Key Field (initially hidden) -->
+            <div id="hostKeySection" class="mt-4 hidden transition-all duration-300">
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-6 text-white/70">
+                  <i class="fas fa-key"></i>
+                </span>
+                <input
+                  type="password"
+                  id="hostKey"
+                  name="hostKey"
+                  placeholder="Enter Host Key"
+                  class="w-full pl-16 px-6 py-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-300"
+                  onblur="validateHostKey()" />
+              </div>
+              <div id="hostKeyError" class="mt-2 text-red-400 text-sm hidden">
+                <i class="fas fa-exclamation-circle mr-2"></i>Invalid host key. Please try again.
+              </div>
+              <div id="hostKeySuccess" class="mt-2 text-green-400 text-sm hidden">
+                <i class="fas fa-check-circle mr-2"></i>Host key verified successfully!
+              </div>
+            </div>
           </div>
-
           <!-- Terms and conditions -->
           <div class="p-6 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
             <label class="inline-flex items-center cursor-pointer text-white/80 hover:text-white transition duration-300">
@@ -318,4 +338,54 @@
       document.body.appendChild(star);
     }
   }, 5000); // Check every 5 seconds
+  function toggleHostKey() {
+    const hostRadio = document.getElementById('host');
+    const hostKeySection = document.getElementById('hostKeySection');
+    const hostKeyError = document.getElementById('hostKeyError');
+    const hostKeySuccess = document.getElementById('hostKeySuccess');
+    const hostKeyInput = document.getElementById('hostKey');
+    
+    if (hostRadio.checked) {
+      hostKeySection.classList.remove('hidden');
+      hostKeySection.classList.add('block');
+      hostKeyInput.required = true;
+    } else {
+      hostKeySection.classList.add('hidden');
+      hostKeySection.classList.remove('block');
+      hostKeyError.classList.add('hidden');
+      hostKeySuccess.classList.add('hidden');
+      hostKeyInput.required = false;
+      hostKeyInput.value = '';
+    }
+  }
+
+  function validateHostKey() {
+    const hostKeyInput = document.getElementById('hostKey');
+    const hostKeyError = document.getElementById('hostKeyError');
+    const hostKeySuccess = document.getElementById('hostKeySuccess');
+    const hostRadio = document.getElementById('host');
+    
+    if (!hostRadio.checked) return;
+    
+    const enteredKey = hostKeyInput.value.trim();
+    
+    if (enteredKey === '') return;
+    
+    if (enteredKey === 'Pikachu') {
+      hostKeyError.classList.add('hidden');
+      hostKeySuccess.classList.remove('hidden');
+      hostKeyInput.classList.remove('border-red-400');
+      hostKeyInput.classList.add('border-green-400');
+    } else {
+      hostKeySuccess.classList.add('hidden');
+      hostKeyError.classList.remove('hidden');
+      hostKeyInput.classList.remove('border-green-400');
+      hostKeyInput.classList.add('border-red-400');
+    }
+  }
+
+  // Initialize on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    toggleHostKey();
+  });
 </script>

@@ -18,7 +18,7 @@ exports.getIndex = async (req, res, next) => {
 
     res.render("store/index", {
       registeredHomes: registeredHomes,
-      pageTitle: "homezy Home",
+      pageTitle: "SwiftCart Home",
       currentPage: "index",
       isLoggedIn: req.isLoggedIn,
       user: req.session.user,

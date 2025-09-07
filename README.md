@@ -1,6 +1,6 @@
-# 🏠 Homezy
+# 🏠 SwiftCart
 
-**Homezy** is a modern and responsive rental home booking platform built with **Node.js**, **Express**, and **Mongoose**, using **EJS** templating for dynamic server-side rendering and **Tailwind CSS** for sleek UI styling. Designed with distinct views for hosts and guests, Homezy delivers a clean, user-friendly experience with full authentication and booking capabilities.
+**SwiftCart** is a modern and responsive rental home booking platform built with **Node.js**, **Express**, and **Mongoose**, using **EJS** templating for dynamic server-side rendering and **Tailwind CSS** for sleek UI styling. Designed with distinct views for hosts and guests, SwiftCart delivers a clean, user-friendly experience with full authentication and booking capabilities.
 
 ---
 
@@ -38,15 +38,15 @@ Make sure you have the following installed:
 
 ```bash
 # 📁 Clone the repository
-git clone https://github.com/Arijit166/homezy.git
-cd Homezy
+git clone https://github.com/Arijit166/SwiftCart.git
+cd SwiftCart
 
 # 📦 Install dependencies
 npm install
 
 # ▶️ Start the development server
 npm run dev
-🔗 Visit: http://localhost:2006/ to access Homezy locally.
+🔗 Visit: http://localhost:2006/ to access SwiftCart locally.
 
 🧾 Scripts
 json
@@ -88,4 +88,4 @@ Edit
 Licensed under the MIT License.
 
 <b>💡 Contributions are welcome!</b>
-Feel free to fork this project and enhance Homezy further.
+Feel free to fork this project and enhance SwiftCart further.
