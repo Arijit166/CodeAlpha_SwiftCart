@@ -95,8 +95,8 @@
           <% } else { %>
             <li class="transform hover:scale-105 transition-all duration-300">
               <a
-                href="/host/host-home-list"
-                class="<%= currentPage === 'host-homes' ? 'bg-white/20 font-semibold shadow-lg backdrop-blur-sm border border-white/30' : 'hover:bg-white/10 hover:shadow-lg hover:border-white/20' %> py-3 px-5 rounded-xl transition-all duration-300 flex items-center group relative overflow-hidden border border-transparent"
+                href="/host/product-list"
+                class="<%= currentPage === 'products' ? 'bg-white/20 font-semibold shadow-lg backdrop-blur-sm border border-white/30' : 'hover:bg-white/10 hover:shadow-lg hover:border-white/20' %> py-3 px-5 rounded-xl transition-all duration-300 flex items-center group relative overflow-hidden border border-transparent"
               >
                 <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                 <svg
@@ -114,14 +114,14 @@
                     clip-rule="evenodd"
                   />
                 </svg>
-                <span class="font-medium relative z-10">Host Homes</span>
+                <span class="font-medium relative z-10">Manage Products</span>
               </a>
             </li>
 
             <li class="transform hover:scale-105 transition-all duration-300">
               <a
-                href="/host/add-home"
-                class="<%= currentPage === 'addHome' ? 'bg-white/20 font-semibold shadow-lg backdrop-blur-sm border border-white/30' : 'hover:bg-white/10 hover:shadow-lg hover:border-white/20' %> py-3 px-5 rounded-xl transition-all duration-300 flex items-center group relative overflow-hidden border border-transparent"
+                href="/host/add-product"
+                class="<%= currentPage === 'addProduct' ? 'bg-white/20 font-semibold shadow-lg backdrop-blur-sm border border-white/30' : 'hover:bg-white/10 hover:shadow-lg hover:border-white/20' %> py-3 px-5 rounded-xl transition-all duration-300 flex items-center group relative overflow-hidden border border-transparent"
               >
                 <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                 <svg
@@ -136,7 +136,7 @@
                     clip-rule="evenodd"
                   />
                 </svg>
-                <span class="font-medium relative z-10">Add Home</span>
+                <span class="font-medium relative z-10">Add Product</span>
               </a>
             </li>
           <% } %>

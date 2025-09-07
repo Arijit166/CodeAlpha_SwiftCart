@@ -1,30 +1,30 @@
-const Home = require("../models/home");
+const Product = require("../models/product");
 const fs=require('fs')
-exports.getAddHome = (req, res, next) => {
-  res.render("host/edit-home", {
-    pageTitle: "Add Home to SwiftCart",
-    currentPage: "addHome",
+exports.getAddProduct = (req, res, next) => {
+  res.render("host/edit-product", {
+    pageTitle: "Add Product to SwiftCart",
+    currentPage: "addProduct",
     editing: false,
     isLoggedIn: req.isLoggedIn,
     user: req.session.user
   });
 };
 
-exports.getEditHome = (req, res, next) => {
-  const homeId = req.params.homeId;
+exports.getEditProduct = (req, res, next) => {
+  const productId = req.params.productId;
   const editing = req.query.editing === 'true';
 
-  Home.findById(homeId) .then(home => {
-    if (!home) {
-      console.log("Home not found for editing.");
-      return res.redirect("/host/host-home-list");
+  Product.findById(productId) .then(product => {
+    if (!product) {
+      console.log("Product not found for editing.");
+      return res.redirect("/host/product-list");
     }
 
-    console.log(homeId, editing, home);
-    res.render("host/edit-home", {
-      home: home,
-      pageTitle: "Edit your Home",
-      currentPage: "host-homes",
+    console.log(productId, editing, product);
+    res.render("host/edit-product", {
+      product: product,
+      pageTitle: "Edit your Product",
+      currentPage: "products",
       editing: editing,
       isLoggedIn: req.isLoggedIn,
       user: req.session.user
@@ -32,86 +32,84 @@ exports.getEditHome = (req, res, next) => {
   });
 };
 
-exports.getHostHomes = (req, res, next) => {
-  Home.find().then((registeredHomes)=>{
-    res.render("host/host-home-list", {
-      registeredHomes: registeredHomes,
-      pageTitle: "Host Homes List",
-      currentPage: "host-homes",
+exports.getProducts = (req, res, next) => {
+  Product.find().then((registeredProducts)=>{
+    res.render("host/product-list", {
+      registeredProducts: registeredProducts,
+      pageTitle: "Product List",
+      currentPage: "products",
       isLoggedIn: req.isLoggedIn,
       user: req.session.user
     })
 });
 };
 
-exports.postAddHome = (req, res, next) => {
-  const { name, price, location, rating, description } = req.body;
+exports.postAddProduct = (req, res, next) => {
+  const { name, price, rating, description } = req.body;
   if (!req.file) {
     return res.status(400).send("No image file uploaded.");
   }
   const image = req.file.path;
-  const home = new Home({ name, price, location, rating, image, description });
+  const product = new Product({ name, price, rating, image, description });
 
-  home.save()
+  product.save()
     .then(() => {
-      console.log("Home saved successfully");
-      res.render("host/home-added", {
-        pageTitle: "Home Added Successfully",
+      console.log("Product saved successfully");
+      res.render("host/product-added", {
+        pageTitle: "Product Added Successfully",
         currentPage: "",
         isLoggedIn: req.isLoggedIn,
         user: req.session.user
       });
     })
     .catch(err => {
-      console.log("Error while saving home", err);
+      console.log("Error while saving product", err);
       res.status(500).send("Something went wrong.");
     });
 };
 
 
-exports.postEditHome = (req, res, next) => {
-  const { id, name, price, location, rating, description } = req.body;
-  Home.findById(id).then((home)=>{
-    home.name=name;
-    home.price=price;
-    home.location=location;
-    home.rating=rating;
-    home.description=description
+exports.postEditProduct = (req, res, next) => {
+  const { id, name, price, rating, description } = req.body;
+  Product.findById(id).then((product)=>{
+    product.name=name;
+    product.price=price;
+    product.rating=rating;
+    product.description=description
     if (req.file) {
-      fs.unlink(home.image, (err)=>{
+      fs.unlink(product.image, (err)=>{
         if (err){
           console.log("Error while deleting file",err)
         }
       })
-      home.image = req.file.path; 
+      product.image = req.file.path; 
     }
-    home.save().then(result=>{
-      console.log("Home Updated",result)
+    product.save().then(result=>{
+      console.log("Product Updated",result)
   }).catch(err=>{
     console.log("Error while uploading",err)
   })
-  res.redirect("/host/host-home-list");
+  res.redirect("/host/product-list");
 }).catch(err=>{
-  console.log("Error while finding home",err)
+  console.log("Error while finding product",err)
 })
 };
 
 const path = require('path');
 const rootDir = path.dirname(require.main.filename);
 
- exports.postDeleteHome = (req, res, next) => {
-  const homeId = req.params.homeId;
-  console.log("Came to delete homeId", homeId);
+ exports.postDeleteProduct = (req, res, next) => {
+  const productId = req.params.productId;
 
-  Home.findById(homeId)
-    .then((home) => {
-      if (!home) {
-        console.log("Home not found");
-        return res.redirect("/host/host-home-list");
+  Product.findById(productId)
+    .then((product) => {
+      if (!product) {
+        console.log("Product not found");
+        return res.redirect("/host/product-list");
       }
 
       // Absolute path to the image file
-      const imagePath = path.join(rootDir, home.image);
+      const imagePath = path.join(rootDir, product.image);
 
       // Delete the image file
       fs.unlink(imagePath, (err) => {
@@ -123,13 +121,13 @@ const rootDir = path.dirname(require.main.filename);
       });
 
       // Delete the document from the DB
-      return Home.findByIdAndDelete(homeId);
+      return Product.findByIdAndDelete(productId);
     })
     .then(() => {
-      res.redirect("/host/host-home-list");
+      res.redirect("/host/product-list");
     })
     .catch((error) => {
-      console.log("Error while deleting home:", error);
+      console.log("Error while deleting product:", error);
     });
 };
 

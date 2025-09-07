@@ -1,0 +1,349 @@
+<%- include('../partials/head') %>   
+<%- include('../partials/nav') %>  
+
+<div class="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 relative overflow-hidden">
+  <!-- Animated Background Elements -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-pink-500 to-red-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-2000"></div>
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-4000"></div>
+  </div>
+
+  <div class="relative container mx-auto px-4 py-12 z-10">
+    <!-- Main Header -->
+    <div class="text-center mb-16">
+      <h1 class="text-5xl md:text-6xl lg:text-6xl font-black text-white mb-4 drop-shadow-2xl">
+        Host
+        <span class="text-4xl md:text-5xl lg:text-6xl bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
+        Dashboard
+        </span>
+      </h1>
+      
+      
+      <div class="mt-8 flex justify-center">
+        <div class="h-1 w-24 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full animate-pulse"></div>
+      </div>
+    </div>
+
+    <!-- Properties Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      <% registeredProducts.forEach(product => { %> 
+        <div class="group relative">
+          <!-- Glow Effect -->
+          <div class="absolute -inset-1 bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 rounded-2xl blur-lg opacity-25 group-hover:opacity-75 transition-opacity duration-500"></div>
+          
+          <!-- Main Card -->
+          <div class="relative bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/20 shadow-2xl transform group-hover:-translate-y-2 group-hover:scale-105 transition-all duration-500">
+            
+            <!-- Image Section -->
+            <div class="relative overflow-hidden">
+              <img src="<%= product.image %>" alt="<%= product.name %>" class="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-700">
+              
+              <!-- Gradient Overlay -->
+              <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              
+              <!-- Rating Badge -->
+              <div class="absolute top-4 right-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full px-3 py-1 flex items-center shadow-lg transform group-hover:scale-110 transition-transform duration-300">
+                <span class="text-sm font-bold">⭐ <%= product.rating %></span>
+              </div>
+            </div>
+            
+            <!-- Content Section -->
+            <div class="p-6 bg-gradient-to-b from-white/15 to-white/5 backdrop-blur-sm">
+              <!-- Product Name -->
+              <h3 class="text-xl font-bold text-white mb-3 truncate drop-shadow-lg">
+                <%= product.name %>
+              </h3>
+              
+              <!-- Price -->
+              <div class="mb-6">
+                <div class="text-2xl font-black text-white drop-shadow-lg">
+                  <span class="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">₹<%= product.price %></span>
+                </div>
+              </div>
+              
+              <!-- Edit Button -->
+                <a href="/host/edit-product/<%= product._id %>/?editing=true" 
+                  class="inline-block bg-gradient-to-r from-cyan-400 to-purple-500 hover:from-cyan-500 hover:to-purple-600 text-white font-bold py-2 px-4 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105">
+                  ✏️ Edit
+                </a>
+
+                <!-- Delete Button -->
+                <button onclick="showDeleteConfirmation('<%= product._id %>', '<%= product.name %>'); return false;" 
+                        class="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-red-600 text-white font-bold py-2 px-4 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 ml-2">
+                  🗑️ Delete
+                </button>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</div>
+<div id="deleteModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+  <div class="bg-white/10 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border border-white/20 max-w-md mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
+    <!-- Modal Header -->
+    <div class="text-center mb-6">
+      <div class="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+        </svg>
+      </div>
+      <h3 class="text-xl font-bold text-white mb-2">Delete Product</h3>
+      <p id="deleteMessage" class="text-white/70">Are you sure you want to delete this product? This action cannot be undone.</p>
+    </div>
+    
+    <!-- Modal Actions -->
+    <div class="flex gap-3">
+      <button onclick="closeDeleteModal()" class="flex-1 bg-white/20 backdrop-blur-sm border border-white/30 text-white py-3 px-6 rounded-xl font-semibold hover:bg-white/30 transition-all duration-300 transform hover:scale-105">
+        Cancel
+      </button>
+      <button onclick="confirmDelete()" class="flex-1 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-3 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl">
+        Delete
+      </button>
+    </div>
+  </div>
+</div>             
+<style>
+  @keyframes pulse {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 0.4; }
+  }
+  
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+  
+  .animate-pulse {
+    animation: pulse 3s ease-in-out infinite;
+  }
+  
+  /* Glassmorphism effect */
+  .backdrop-blur-xl {
+    backdrop-filter: blur(16px);
+  }
+  
+  .backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+  }
+  
+  /* Hover animations */
+  .group:hover .transform {
+    transform: translateY(-8px) scale(1.05);
+  }
+  
+  /* Text shadow for better readability */
+  .drop-shadow-lg {
+    filter: drop-shadow(0 10px 8px rgb(0 0 0 / 0.04)) drop-shadow(0 4px 3px rgb(0 0 0 / 0.1));
+  }
+  
+  .drop-shadow-2xl {
+    filter: drop-shadow(0 25px 25px rgb(0 0 0 / 0.15));
+  }
+
+/* Blinking Stars Styles */
+  .star {
+    position: fixed;
+    color: white;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 5;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+  }
+
+  @keyframes blink {
+    0%, 50% { opacity: 0; }
+    51%, 100% { opacity: 1; }
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+
+  .star-blink {
+    animation: blink 2s infinite;
+  }
+
+  .star-twinkle {
+    animation: twinkle 3s infinite;
+  }
+
+  .star-slow {
+    animation: blink 4s infinite;
+  }
+</style>
+
+<script>
+  // Blinking Stars Script
+  function createStars() {
+    const starContainer = document.body;
+    const numberOfStars = 50;
+    const starSymbols = ['✦', '✧', '⭐', '✨', '⋆', '★', '☆'];
+    const animationClasses = ['star-blink', 'star-twinkle', 'star-slow'];
+
+    for (let i = 0; i < numberOfStars; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      
+      // Random star symbol
+      star.textContent = starSymbols[Math.floor(Math.random() * starSymbols.length)];
+      
+      // Random position
+      let left = Math.random() * 100;
+      let top = Math.random() * 100;
+      
+      // Check if star would overlap with signup box area (roughly center area)
+      // Signup box is roughly centered, so avoid the middle 40% width and height
+      const signupBoxLeft = 30; // roughly 30% from left
+      const signupBoxRight = 70; // roughly 70% from left
+      const signupBoxTop = 20; // roughly 20% from top
+      const signupBoxBottom = 80; // roughly 80% from top
+      
+      // If star would be in signup box area, reposition it
+      if (left > signupBoxLeft && left < signupBoxRight && top > signupBoxTop && top < signupBoxBottom) {
+        // Move to edges instead
+        if (Math.random() < 0.5) {
+          left = Math.random() < 0.5 ? Math.random() * 25 : 75 + Math.random() * 25; // left or right edge
+        } else {
+          top = Math.random() < 0.5 ? Math.random() * 15 : 85 + Math.random() * 15; // top or bottom edge
+        }
+      }
+      
+      star.style.left = left + '%';
+      star.style.top = top + '%';
+      
+      // Random size
+      const size = Math.random() * 8 + 8; // 8px to 16px
+      star.style.fontSize = size + 'px';
+      
+      // Random animation
+      const animationClass = animationClasses[Math.floor(Math.random() * animationClasses.length)];
+      star.classList.add(animationClass);
+      
+      // Random animation delay
+      star.style.animationDelay = Math.random() * 3 + 's';
+      
+      // Random opacity
+      star.style.opacity = Math.random() * 0.8 + 0.2;
+      
+      starContainer.appendChild(star);
+    }
+  }
+
+  // Create stars when page loads
+  document.addEventListener('DOMContentLoaded', createStars);
+
+  // Optional: Add more stars periodically
+  setInterval(() => {
+    // Remove old stars occasionally to prevent too many elements
+    const existingStars = document.querySelectorAll('.star');
+    if (existingStars.length > 100) {
+      existingStars[0].remove();
+    }
+    
+    // Add a new star occasionally
+    if (Math.random() < 0.1) { // 10% chance every interval
+      const star = document.createElement('div');
+      star.className = 'star star-twinkle';
+      star.textContent = ['✦', '✧', '⭐', '✨', '⋆'][Math.floor(Math.random() * 5)];
+      
+      let left = Math.random() * 100;
+      let top = Math.random() * 100;
+      
+      // Avoid signup box area for new stars too
+      const signupBoxLeft = 30;
+      const signupBoxRight = 70;
+      const signupBoxTop = 20;
+      const signupBoxBottom = 80;
+      
+      if (left > signupBoxLeft && left < signupBoxRight && top > signupBoxTop && top < signupBoxBottom) {
+        if (Math.random() < 0.5) {
+          left = Math.random() < 0.5 ? Math.random() * 25 : 75 + Math.random() * 25;
+        } else {
+          top = Math.random() < 0.5 ? Math.random() * 15 : 85 + Math.random() * 15;
+        }
+      }
+      
+      star.style.left = left + '%';
+      star.style.top = top + '%';
+      star.style.fontSize = (Math.random() * 8 + 8) + 'px';
+      star.style.animationDelay = Math.random() * 3 + 's';
+      star.style.opacity = Math.random() * 0.8 + 0.2;
+      document.body.appendChild(star);
+    }
+  }, 5000); // Check every 5 seconds
+  let productToDelete = null;
+
+  // Show delete confirmation modal
+  function showDeleteConfirmation(productId, productName) {
+    event.preventDefault(); // Add this line
+    
+    productToDelete = productId;
+    const modal = document.getElementById('deleteModal');
+    const modalContent = document.getElementById('modalContent');
+    const messageElement = document.getElementById('deleteMessage');
+    
+    messageElement.textContent = `Are you sure you want to delete "${productName}"? This action cannot be undone.`;
+    
+    modal.classList.remove('hidden');
+    
+    setTimeout(() => {
+      modalContent.classList.remove('scale-95', 'opacity-0');
+      modalContent.classList.add('scale-100', 'opacity-100');
+    }, 10);
+    
+    return false; // Add this line
+  }
+
+  // Close delete confirmation modal
+  function closeDeleteModal() {
+    const modal = document.getElementById('deleteModal');
+    const modalContent = document.getElementById('modalContent');
+    
+    // Animate modal disappearance
+    modalContent.classList.remove('scale-100', 'opacity-100');
+    modalContent.classList.add('scale-95', 'opacity-0');
+    
+    setTimeout(() => {
+      modal.classList.add('hidden');
+      productToDelete = null;
+    }, 300);
+  }
+
+  // Confirm delete action
+  function confirmDelete() {
+    if (productToDelete) {
+      // Close modal first
+      closeDeleteModal();
+      
+      // Small delay to let modal close, then redirect
+      setTimeout(() => {
+        // Create a form and submit it to delete the product
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/host/delete-product/${productToDelete}`;
+        document.body.appendChild(form);
+        form.submit();
+      }, 100);
+    }
+  }
+
+  // Close modal when clicking outside
+  document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeDeleteModal();
+    }
+  });
+
+  // Close modal with Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeDeleteModal();
+    }
+  });
+</script>

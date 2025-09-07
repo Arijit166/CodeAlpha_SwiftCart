@@ -139,10 +139,10 @@
                 </label>
                 <label class="inline-flex items-center cursor-pointer text-white/80 hover:text-white transition duration-300">
                   <input type="radio" name="userType" value="host" id="host" class="form-radio text-purple-400 focus:ring-purple-400 bg-white/20 border-white/30" onchange="toggleHostKey()" />
-                  <span class="ml-3 font-medium">Host</span>
+                  <span class="ml-3 font-medium">Admin</span>
                 </label>
               </div>
-            <!-- Host Key Field (initially hidden) -->
+            <!-- Admin Key Field (initially hidden) -->
             <div id="hostKeySection" class="mt-4 hidden transition-all duration-300">
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-6 text-white/70">
@@ -152,15 +152,15 @@
                   type="password"
                   id="hostKey"
                   name="hostKey"
-                  placeholder="Enter Host Key"
+                  placeholder="Enter Admin Key"
                   class="w-full pl-16 px-6 py-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-300"
                   onblur="validateHostKey()" />
               </div>
               <div id="hostKeyError" class="mt-2 text-red-400 text-sm hidden">
-                <i class="fas fa-exclamation-circle mr-2"></i>Invalid host key. Please try again.
+                <i class="fas fa-exclamation-circle mr-2"></i>Invalid admin key. Please try again.
               </div>
               <div id="hostKeySuccess" class="mt-2 text-green-400 text-sm hidden">
-                <i class="fas fa-check-circle mr-2"></i>Host key verified successfully!
+                <i class="fas fa-check-circle mr-2"></i>Admin key verified successfully!
               </div>
             </div>
           </div>
@@ -338,7 +338,7 @@
       document.body.appendChild(star);
     }
   }, 5000); // Check every 5 seconds
-  
+
   let isHostKeyValid = false;
 
   function validateHostKey() {
@@ -356,7 +356,7 @@
       return;
     }
     
-    // Send AJAX request to validate host key on server
+    // Send AJAX request to validate admin key on server
     fetch('/validate-host-key', {
       method: 'POST',
       headers: {
@@ -381,7 +381,7 @@
       }
     })
     .catch(error => {
-      console.error('Error validating host key:', error);
+      console.error('Error validating admin key:', error);
       isHostKeyValid = false;
     });
   }
@@ -405,7 +405,7 @@
       hostKeySuccess.classList.add('hidden');
       hostKeyInput.required = false;
       hostKeyInput.value = '';
-      isHostKeyValid = true; // Guest doesn't need host key
+      isHostKeyValid = true; 
     }
   }
 
@@ -418,7 +418,7 @@
     if (hostRadio.checked) {
       if (!hostKeyInput.value.trim()) {
         e.preventDefault();
-        hostKeyError.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Please enter the host key before submitting';
+        hostKeyError.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Please enter the admin key before submitting';
         hostKeyError.classList.remove('hidden');
         hostKeyInput.classList.add('border-red-400');
         hostKeyInput.focus();
@@ -426,7 +426,7 @@
       }
       if (!isHostKeyValid) {
         e.preventDefault();
-        hostKeyError.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Please enter a valid host key before submitting';
+        hostKeyError.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Please enter a valid admin key before submitting';
         hostKeyError.classList.remove('hidden');
         hostKeyInput.classList.add('border-red-400');
         hostKeyInput.focus();

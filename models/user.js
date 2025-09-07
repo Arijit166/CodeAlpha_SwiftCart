@@ -24,11 +24,11 @@ const userSchema=mongoose.Schema({
   },
   favourites:[{
     type: mongoose.Schema.Types.ObjectId,
-    ref:'Home'
+    ref:'Product'
   }],
   bookings:[{
     type: mongoose.Schema.Types.ObjectId,
-    ref:'Home'
+    ref:'Product'
   }]
 })
 
