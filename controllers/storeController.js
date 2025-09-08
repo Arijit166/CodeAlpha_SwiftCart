@@ -7,14 +7,6 @@ exports.getIndex = async (req, res, next) => {
 
   try {
     const orderedProducts = await Product.find();
-    let orderedProductIds = [];
-
-    if (req.session.user) {
-      const user = await User.findById(req.session.user._id);
-      if (user.orders && user.orders.length > 0) {
-        orderedIds = user.orders.map(id => id.toString());
-      }
-    }
 
     res.render("store/index", {
       orderedProducts: orderedProducts,
@@ -22,7 +14,6 @@ exports.getIndex = async (req, res, next) => {
       currentPage: "index",
       isLoggedIn: req.isLoggedIn,
       user: req.session.user,
-      orderedProductIds: orderedProductIds, // ✅ passed to EJS
     });
 
   } catch (err) {
@@ -35,16 +26,35 @@ exports.getIndex = async (req, res, next) => {
   }
 };
 
-exports.getProducts = (req, res, next) => {
-  Product.find().then((orderedProducts) => {
+exports.getProducts = async (req, res, next) => {
+  try {
+    const orderedProducts = await Product.find();
+    let orderedProductIds = [];
+
+    // Check if user is logged in and get their orders
+    if (req.session.user) {
+      const user = await User.findById(req.session.user._id);
+      if (user.orders && user.orders.length > 0) {
+        orderedProductIds = user.orders.map(id => id.toString());
+      }
+    }
+
     res.render("store/product-list", {
       orderedProducts: orderedProducts,
       pageTitle: "Product List",
       currentPage: "Products",
       isLoggedIn: req.isLoggedIn, 
       user: req.session.user,
+      orderedProductIds: orderedProductIds, // ✅ Added for order status tracking
     });
-  });
+  } catch (err) {
+    console.error("Error loading products:", err);
+    res.status(500).render("error/500", {
+      pageTitle: "Error",
+      isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
+    });
+  }
 };
 
 exports.getOrders = async (req, res, next) => {
@@ -127,7 +137,7 @@ exports.postCancelOrders = async (req, res, next) => {
     await user.save();
 
     // Redirect to home page with success (as per original logic)
-    res.redirect("/");
+    res.redirect("/product-list");
 
   } catch (err) {
     console.error("Error in postCancelOrders:", err);
@@ -197,7 +207,7 @@ exports.getProductDetails = (req, res, next) => {
   Product.findById(productId).then((product) => {
     if (!product) {
       console.log("Product not found");
-      res.redirect("/products");
+      res.redirect("/product-list");
     } else {
       res.render("store/product-detail", {
         product: product,

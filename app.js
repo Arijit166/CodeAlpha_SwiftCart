@@ -61,7 +61,7 @@ app.use(multer(multerOptions).single("image"))
 app.use(express.static(path.join(rootDir, 'public'))) 
 app.use("/uploads", express.static(path.join(rootDir, 'uploads')))
 app.use("/host/uploads", express.static(path.join(rootDir, 'uploads')))
-app.use("/homes/uploads", express.static(path.join(rootDir, 'uploads')))
+app.use("/product/uploads", express.static(path.join(rootDir, 'uploads')))
 
 app.use(session({
   secret: process.env.SESSION_SECRET || "fallback-secret-key",
