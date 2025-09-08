@@ -1,6 +1,6 @@
 # 🏠 SwiftCart
 
-**SwiftCart** is a modern and responsive rental home booking platform built with **Node.js**, **Express**, and **Mongoose**, using **EJS** templating for dynamic server-side rendering and **Tailwind CSS** for sleek UI styling. Designed with distinct views for hosts and guests, SwiftCart delivers a clean, user-friendly experience with full authentication and booking capabilities.
+**SwiftCart** is a modern and responsive shopping platform built with Node.js, Express, and Mongoose, using EJS templating for dynamic server-side rendering and Tailwind CSS for sleek UI styling. Designed with distinct views for admins and customers, SwiftCart delivers a clean, user-friendly experience with full authentication and seamless shopping capabilities.
 
 ---
 
@@ -38,34 +38,38 @@ Make sure you have the following installed:
 
 ```bash
 # 📁 Clone the repository
-git clone https://github.com/Arijit166/SwiftCart.git
-cd SwiftCart
+git clone https://github.com/Arijit166/CodeAlpha_SwiftCart
+cd CodeAlpha_SwiftCart
+```
 
-# 📦 Install dependencies
+### 📦 Install dependencies
+```
 npm install
+```
 
-# ▶️ Start the development server
+### ▶️ Start the development server
+```
 npm run dev
-🔗 Visit: http://localhost:2006/ to access SwiftCart locally.
+``` 
+### 🔗 Visit: http://localhost:2006/ to access SwiftCart locally.
 
-🧾 Scripts
-json
-Copy
-Edit
+## 🧾 Scripts
+```
 "scripts": {
   "dev": "nodemon app.js",
   "start": "node app.js"
 }
 ```
 
-### ✅ Features
-🏡 Beautiful and responsive home booking layout
+## ✅ Features
 
-🔄 Dynamic UI based on user type (Host / Guest)
+🛍️ Beautiful and responsive shopping layout
+
+🔄 Dynamic UI based on user type (Admin / Customer)
 
 📝 Signup and Login with full authentication & authorization
 
-🧾 Booking system with server-side management
+🛒 Add to cart, update cart, and checkout system
 
 ♻️ Reusable EJS partials for layout consistency
 
@@ -75,16 +79,17 @@ Edit
 
 🧰 Mongoose-based MongoDB integration
 
-🔮 Planned Features
-📆 Calendar integration for booking dates
+## 🔮 Planned Features
 
-🧳 Host dashboard to manage listed homes
+💳 Payment gateway integration (e.g., Razorpay/Stripe)
 
-☁️ Cloud-based image upload (e.g., Cloudinary)
+📦 Order management dashboard for admins
 
-📊 Booking analytics (for hosts)
+☁️ Cloud-based product image upload (e.g., Cloudinary)
 
-### 📄 License
+📊 Sales and user analytics (for admins)
+
+## 📄 License
 Licensed under the MIT License.
 
 <b>💡 Contributions are welcome!</b>
