@@ -13,14 +13,14 @@
     <!-- Main Header -->
     <div class="text-center mb-16">
       <h1 class="text-5xl md:text-6xl lg:text-6xl font-black text-white mb-4 drop-shadow-2xl">
-        My
+        Your
         <span class="text-4xl md:text-5xl lg:text-6xl bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
-        Bookings
+        Orders
         </span>
       </h1>
       
       <p class="text-xl md:text-2xl text-gray-200 font-light max-w-3xl mx-auto leading-relaxed mt-8 drop-shadow-lg">
-        Your confirmed reservations and upcoming stays 🏠
+        All your orders, in one place 📦
       </p>
       
       <div class="mt-8 flex justify-center">
@@ -39,7 +39,7 @@
 
     <!-- Properties Grid -->
     <div class="flex flex-wrap justify-center gap-8 max-w-7xl mx-auto">
-      <% bookingHomes.forEach(home => { %> 
+      <% orderedProducts.forEach(product => { %> 
         <div class="group relative w-full max-w-sm flex-shrink-0">
           
           <!-- Main Card -->
@@ -47,49 +47,40 @@
             
             <!-- Image Section -->
             <div class="relative overflow-hidden">
-              <img src="<%= home.image %>" alt="<%= home.name %>" class="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-700">
+              <img src="<%= product.image %>" alt="<%= product.name %>" class="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-700">
               
               <!-- Gradient Overlay -->
               <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               
               <!-- Rating Badge -->
               <div class="absolute top-4 right-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full px-3 py-1 flex items-center shadow-lg transform group-hover:scale-110 transition-transform duration-300">
-                <span class="text-sm font-bold">⭐ <%= home.rating %></span>
+                <span class="text-sm font-bold">⭐ <%= product.rating %></span>
               </div>
             </div>
             
             <!-- Content Section -->
             <div class="p-6 bg-gradient-to-b from-white/15 to-white/5 backdrop-blur-sm">
-              <!-- Home Name -->
+              <!-- Product Name -->
               <h3 class="text-xl font-bold text-white mb-3 truncate drop-shadow-lg">
-                <%= home.name %>
+                <%= product.name %>
               </h3>
-              
-              <!-- Location -->
-              <div class="flex items-center mb-4 text-gray-200">
-                <svg class="w-4 h-4 mr-2 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
-                </svg>
-                <span class="text-sm font-medium truncate"><%= home.location %></span>
-              </div>
-              
+ 
               <!-- Price -->
               <div class="mb-6">
                 <div class="text-2xl font-black text-white drop-shadow-lg">
-                  <span class="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">₹<%= home.price %></span>
+                  <span class="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">₹<%= product.price %></span>
                 </div>
-                <div class="text-sm text-gray-300 font-medium">per night</div>
               </div>
               
               <!-- Cancel Button -->
               <div class="w-full">
-                <button onclick="showConfirmation('<%= home._id %>', '<%= home.name %>')" 
+                <button onclick="showConfirmation('<%= product._id %>', '<%= product.name %>')" 
                   class="w-full bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl">
                   <span class="flex items-center justify-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
-                     Cancel Booking
+                     Cancel Order
                   </span>
                 </button>
               </div>
@@ -107,10 +98,10 @@
         <!-- Modal Header -->
         <div class="text-center mb-6">
           <h3 class="text-3xl md:text-4xl font-extrabold text-transparent bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text drop-shadow-2xl">
-            Cancel This Booking?
+            ⚠️Cancel Order?
           </h3>
           <p class="text-base md:text-lg text-gray-200 font-light mt-4 drop-shadow-lg">
-            Please confirm you'd like to cancel the booking.
+             You’re about to cancel the following order. Please confirm your action.
           </p>
           <div class="mt-4 flex justify-center">
             <div class="h-1 w-20 bg-gradient-to-r from-pink-400 to-rose-400 rounded-full animate-pulse"></div>
@@ -120,11 +111,11 @@
         <!-- Modal Content -->
         <div class="text-center mb-8">
           <p class="text-lg text-gray-300 font-medium leading-relaxed drop-shadow">
-            You are about to cancel your stay at
+            This order will be permanently cancelled:
           </p>
-          <p id="homeName" class="text-xl md:text-2xl font-bold text-white mt-3 drop-shadow-lg tracking-wide"></p>
+          <p id="productName" class="text-xl md:text-2xl font-bold text-white mt-3 drop-shadow-lg tracking-wide"></p>
           <p class="text-sm text-red-300 mt-4 italic">
-            This action cannot be undone. Proceed with caution ⚠️
+            This action cannot be undone⚠️
           </p>
         </div>
         
@@ -137,7 +128,7 @@
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
-              Keep Booking
+              Keep Order
             </span>
           </button>
           
@@ -207,9 +198,9 @@
 </style>
 
 <script>
-  function showConfirmation(homeId, homeName) {
-    document.getElementById('homeName').textContent = homeName;
-    document.getElementById('cancelForm').action = `/bookings/delete/${homeId}`;
+  function showConfirmation(productId, productName) {
+    document.getElementById('productName').textContent = productName;
+    document.getElementById('cancelForm').action = `/orders/delete/${productId}`;
     const modal = document.getElementById('confirmationModal');
     modal.classList.remove('hidden');
     setTimeout(() => {

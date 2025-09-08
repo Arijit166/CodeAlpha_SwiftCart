@@ -1,4 +1,4 @@
-const Home = require("../models/product");
+const Product = require("../models/product");
 const User = require("../models/user");
 
 
@@ -6,23 +6,23 @@ exports.getIndex = async (req, res, next) => {
   console.log("Session Value: ", req.session);
 
   try {
-    const registeredHomes = await Home.find();
-    let bookedHomeIds = [];
+    const orderedProducts = await Product.find();
+    let orderedProductIds = [];
 
     if (req.session.user) {
       const user = await User.findById(req.session.user._id);
-      if (user.bookings && user.bookings.length > 0) {
-        bookedHomeIds = user.bookings.map(id => id.toString());
+      if (user.orders && user.orders.length > 0) {
+        orderedIds = user.orders.map(id => id.toString());
       }
     }
 
     res.render("store/index", {
-      registeredHomes: registeredHomes,
-      pageTitle: "SwiftCart Home",
+      orderedProducts: orderedProducts,
+      pageTitle: "SwiftCart Products",
       currentPage: "index",
       isLoggedIn: req.isLoggedIn,
       user: req.session.user,
-      bookedHomeIds: bookedHomeIds, // ✅ passed to EJS
+      orderedProductIds: orderedProductIds, // ✅ passed to EJS
     });
 
   } catch (err) {
@@ -35,67 +35,64 @@ exports.getIndex = async (req, res, next) => {
   }
 };
 
-exports.getHomes = (req, res, next) => {
-  Home.find().then((registeredHomes) => {
-    res.render("store/home-list", {
-      registeredHomes: registeredHomes,
-      pageTitle: "Homes List",
-      currentPage: "Home",
+exports.getProducts = (req, res, next) => {
+  Product.find().then((orderedProducts) => {
+    res.render("store/product-list", {
+      orderedProducts: orderedProducts,
+      pageTitle: "Product List",
+      currentPage: "Products",
       isLoggedIn: req.isLoggedIn, 
       user: req.session.user,
     });
   });
 };
 
-exports.getBookings = async (req, res, next) => {
+exports.getOrders = async (req, res, next) => {
   const userId = req.session.user._id;
-  const user = await User.findById(userId).populate('bookings');
-  res.render("store/bookings", {
-    bookingHomes: user.bookings,
-    pageTitle: "My Bookings",
-    currentPage: "bookings",
+  const user = await User.findById(userId).populate('orders');
+  res.render("store/orders", {
+    orderedProducts: user.orders,
+    pageTitle: "My Orders",
+    currentPage: "orders",
     isLoggedIn: req.isLoggedIn, 
     user: req.session.user,
   });
 };
 
-exports.postBookings = async (req, res, next) => {
-  const homeId = req.body.id;
+exports.postOrders = async (req, res, next) => {
+  const productId = req.body.id;
   const userId = req.session.user._id;
 
   try {
     const user = await User.findById(userId);
 
-    // Check if user already has this home booked
-    if (user.bookings && user.bookings.some(b => b.toString() === homeId)) {
-      return res.redirect("/bookings");
+    if (user.orders && user.orders.some(b => b.toString() === productId)) {
+      return res.redirect("/orders");
     }
 
-    // Check if user already has a booking (only one booking allowed)
-    if (user.bookings && user.bookings.length > 0) {
-      const userWithBookings = await User.findById(userId).populate('bookings');
-      return res.render("store/bookings", {
-        bookingHomes: userWithBookings.bookings,
-        pageTitle: "My Bookings",
-        currentPage: "bookings",
+    if (user.orders && user.orders.length > 0) {
+      const userWithorders = await User.findById(userId).populate('orders');
+      return res.render("store/orders", {
+        orderedProducts: userWithorders.orders,
+        pageTitle: "My orders",
+        currentPage: "orders",
         isLoggedIn: req.isLoggedIn,
         user: req.session.user,
-        errorMessage: "❗ You can book only one home at a time.",
       });
     }
 
     // Add the new booking
-    if (!user.bookings) {
-      user.bookings = [homeId];
+    if (!user.orders) {
+      user.orders = [productId];
     } else {
-      user.bookings.push(homeId);
+      user.orders.push(productId);
     }
 
     await user.save();
-    res.redirect("/bookings");
+    res.redirect("/orders");
 
   } catch (err) {
-    console.error("Error in postBookings:", err);
+    console.error("Error in postorders:", err);
     res.status(500).render("error/500", {
       pageTitle: "Error",
       isLoggedIn: req.isLoggedIn,
@@ -104,8 +101,8 @@ exports.postBookings = async (req, res, next) => {
   }
 };
 
-exports.postCancelBookings = async (req, res, next) => {
-  const homeId = req.params.homeId;
+exports.postCancelOrders = async (req, res, next) => {
+  const productId = req.params.productId;
   const userId = req.session.user._id;
 
   try {
@@ -121,19 +118,19 @@ exports.postCancelBookings = async (req, res, next) => {
     }
 
     // Check if the booking exists
-    if (!user.bookings || !user.bookings.includes(homeId)) {
-      return res.redirect("/bookings");
+    if (!user.orders || !user.orders.includes(productId)) {
+      return res.redirect("/orders");
     }
 
     // Remove the booking
-    user.bookings = user.bookings.filter(book => book.toString() !== homeId);
+    user.orders = user.orders.filter(order => order.toString() !== productId);
     await user.save();
 
     // Redirect to home page with success (as per original logic)
     res.redirect("/");
 
   } catch (err) {
-    console.error("Error in postCancelBookings:", err);
+    console.error("Error in postCancelOrders:", err);
     res.status(500).render("error/500", {
       pageTitle: "Error",
       isLoggedIn: req.isLoggedIn,
@@ -142,51 +139,70 @@ exports.postCancelBookings = async (req, res, next) => {
   }
 };
 
-exports.getFavouriteList = async (req, res, next) => {
+exports.getOrderList = async (req, res, next) => {
   const userId = req.session.user._id;
-  const user = await User.findById(userId).populate('favourites');
-  res.render("store/favourite-list", {
-    favouriteHomes: user.favourites,
-    pageTitle: "My Favourites",
-    currentPage: "favourites",
+  const user = await User.findById(userId).populate('carts');
+  res.render("store/orders", {
+    cartProducts: user.carts,
+    pageTitle: "My orders",
+    currentPage: "orders",
     isLoggedIn: req.isLoggedIn, 
     user: req.session.user,
   });
 };
-
-exports.postAddToFavourite = async (req, res, next) => {
-  const homeId = req.body.id;
+exports.getCartList = async (req, res, next) => {
+  try {
+    const userId = req.session.user._id;
+    const user = await User.findById(userId).populate('carts');
+    res.render("store/cart-list", {
+      cartProducts: user.carts,
+      pageTitle: "My Cart",
+      currentPage: "carts",
+      isLoggedIn: req.isLoggedIn, 
+      user: req.session.user,
+    });
+  } catch (err) {
+    console.error("Error loading cart:", err);
+    res.status(500).render("error/500", {
+      pageTitle: "Error",
+      isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
+    });
+  }
+};
+exports.postAddToCart = async (req, res, next) => {
+  const productId = req.body.id;
   const userId = req.session.user._id;
   const user = await User.findById(userId);
-  if (!user.favourites.includes(homeId)) {
-    user.favourites.push(homeId);
+  if (!user.carts.includes(productId)) {
+    user.carts.push(productId);
     await user.save();
   }
-  res.redirect("/favourites");
+  res.redirect("/cart-list");
 };
 
-exports.postRemoveFromFavourite = async (req, res, next) => {
-  const homeId = req.params.homeId;
+exports.postRemoveFromCart = async (req, res, next) => {
+  const productId = req.params.productId;
   const userId = req.session.user._id;
   const user = await User.findById(userId);
-  if (user.favourites.includes(homeId)) {
-    user.favourites = user.favourites.filter(fav => fav != homeId);
+  if (user.carts.includes(productId)) {
+    user.carts = user.carts.filter(fav => fav != productId);
     await user.save();
   }
-  res.redirect("/favourites");
+  res.redirect("/cart-list");
 };
 
-exports.getHomeDetails = (req, res, next) => {
-  const homeId = req.params.homeId;
-  Home.findById(homeId).then((home) => {
-    if (!home) {
-      console.log("Home not found");
-      res.redirect("/homes");
+exports.getProductDetails = (req, res, next) => {
+  const productId = req.params.productId;
+  Product.findById(productId).then((product) => {
+    if (!product) {
+      console.log("Product not found");
+      res.redirect("/products");
     } else {
-      res.render("store/home-detail", {
-        home: home,
-        pageTitle: "Home Detail",
-        currentPage: "Home",
+      res.render("store/product-detail", {
+        product: product,
+        pageTitle: "Product Detail",
+        currentPage: "Products",
         isLoggedIn: req.isLoggedIn, 
         user: req.session.user,
       });

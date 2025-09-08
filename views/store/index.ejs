@@ -31,62 +31,54 @@
 
     <!-- Properties Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-      <% registeredHomes.forEach(home => { %> 
+      <% orderedProducts.forEach(product => { %> 
         <div class="group relative">
           <!-- Main Card -->
           <div class="relative bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/20 shadow-2xl transform group-hover:-translate-y-2 group-hover:scale-105 transition-all duration-500 z-10">
             <!-- Image Section -->
             <div class="relative overflow-hidden">
-              <img src="<%= home.image %>" alt="<%= home.name %>" class="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-700">
+              <img src="<%= product.image %>" alt="<%= product.name %>" class="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-700">
               
               <!-- Gradient Overlay -->
               <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               
               <!-- Rating Badge -->
               <div class="absolute top-4 right-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full px-3 py-1 flex items-center shadow-lg transform group-hover:scale-110 transition-transform duration-300">
-                <span class="text-sm font-bold">⭐ <%= home.rating %></span>
+                <span class="text-sm font-bold">⭐ <%= product.rating %></span>
               </div>
             </div>
             
             <!-- Content Section -->
             <div class="p-6 bg-gradient-to-b from-white/15 to-white/5 backdrop-blur-sm">
-              <!-- Home Name -->
+              <!-- Product Name -->
               <h3 class="text-xl font-bold text-white mb-3 truncate drop-shadow-lg">
-                <%= home.name %>
+                <%= product.name %>
               </h3>
-              
-              <!-- Location -->
-              <div class="flex items-center mb-4 text-gray-200">
-                <svg class="w-4 h-4 mr-2 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
-                </svg>
-                <span class="text-sm font-medium truncate"><%= home.location %></span>
-              </div>
               
               <!-- Price -->
               <div class="mb-6">
                 <div class="text-2xl font-black text-white drop-shadow-lg">
-                  <span class="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">₹<%= home.price %></span>
+                  <span class="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">₹<%= product.price %></span>
                 </div>
                 <div class="text-sm text-gray-300 font-medium">per night</div>
               </div>
               
-              <!-- Booking Button -->
+              <!-- Ordering Button -->
               <div class="w-full">
-               <% if (bookedHomeIds.includes(home._id.toString())) { %>
+               <% if (orderedproductIds.includes(product._id.toString())) { %>
                   <button disabled class="w-full bg-gradient-to-r from-purple-400 to-pink-400 text-white text-center py-3 px-6 rounded-xl font-semibold shadow-md opacity-80 cursor-not-allowed flex items-center justify-center gap-2">
                     <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
                     </svg>
-                    Booked
+                    Ordered
                   </button>
                 <% } else { %>
-                  <form action="/bookings" method="POST">
-                    <input type="hidden" name="id" value="<%= home._id %>">
+                  <form action="/orders" method="POST">
+                    <input type="hidden" name="id" value="<%= product._id %>">
                     <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-center py-3 px-6 rounded-xl font-bold transition-all duration-300 shadow-lg transform hover:scale-105 hover:shadow-xl">
                       <span class="flex items-center justify-center">
                         <span class="mr-2">🏠</span>
-                        Book Now
+                        Order Now
                         <span class="ml-2">✨</span>
                       </span>
                     </button>

@@ -6,13 +6,14 @@ const storeRouter = express.Router();
 const storeController = require("../controllers/storeController");
 
 storeRouter.get("/", storeController.getIndex);
-storeRouter.get("/homes", storeController.getHomes);
-storeRouter.get("/bookings", storeController.getBookings);
-storeRouter.post("/bookings", storeController.postBookings);
-storeRouter.get("/favourites", storeController.getFavouriteList);
-storeRouter.post("/bookings/delete/:homeId", storeController.postCancelBookings);
-storeRouter.get("/homes/:homeId", storeController.getHomeDetails);
-storeRouter.post("/favourites", storeController.postAddToFavourite);
-storeRouter.post("/favourites/delete/:homeId", storeController.postRemoveFromFavourite);
+storeRouter.get("/product-list", storeController.getProducts);
+storeRouter.get("/orders", storeController.getOrders);
+storeRouter.post("/orders", storeController.postOrders);
+storeRouter.get("/orders", storeController.getOrderList);
+storeRouter.post("/orders/delete/:productId", storeController.postCancelOrders);
+storeRouter.get("/product-detail/:productId", storeController.getProductDetails);
+storeRouter.get("/cart-list", storeController.getCartList);
+storeRouter.post("/cart-list", storeController.postAddToCart);
+storeRouter.post("/cart-list/delete/:productId", storeController.postRemoveFromCart);
 
 module.exports = storeRouter;

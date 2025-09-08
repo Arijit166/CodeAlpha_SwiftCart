@@ -6,7 +6,7 @@ exports.getLogin = (req, res, next) => {
   // If already logged in, redirect based on user type
   if (req.session.isLoggedIn) {
     if (req.session.user && req.session.user.userType === 'guest') {
-      return res.redirect("/homes");
+      return res.redirect("/products");
     } else if (req.session.user && req.session.user.userType === 'host') {
       return res.redirect("/host/product-list");
     }
@@ -30,7 +30,7 @@ exports.getSignUp = (req, res, next) => {
   // If already logged in, redirect based on user type
   if (req.session.isLoggedIn) {
     if (req.session.user && req.session.user.userType === 'guest') {
-      return res.redirect("/homes");
+      return res.redirect("/products");
     } else if (req.session.user && req.session.user.userType === 'host') {
       return res.redirect("/host/product-list");
     }
@@ -192,7 +192,7 @@ exports.postLogin = async (req, res, next) => {
     
     // Redirect based on user type
     if (user.userType === 'guest') {
-      return res.redirect("/homes");
+      return res.redirect("/products");
     } else if (user.userType === 'host') {
       return res.redirect("/host/product-list");
     }

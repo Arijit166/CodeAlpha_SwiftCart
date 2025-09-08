@@ -33,9 +33,9 @@ exports.getEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.find().then((registeredProducts)=>{
+  Product.find().then((orderedProducts)=>{
     res.render("host/product-list", {
-      registeredProducts: registeredProducts,
+      orderedProducts: orderedProducts,
       pageTitle: "Product List",
       currentPage: "products",
       isLoggedIn: req.isLoggedIn,

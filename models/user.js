@@ -22,11 +22,11 @@ const userSchema=mongoose.Schema({
     enum:['guest','host'],
     default:'guest'
   },
-  favourites:[{
+  carts:[{
     type: mongoose.Schema.Types.ObjectId,
     ref:'Product'
   }],
-  bookings:[{
+  orders:[{
     type: mongoose.Schema.Types.ObjectId,
     ref:'Product'
   }]
