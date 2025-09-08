@@ -71,12 +71,19 @@ app.use(session({
 }));
 
 app.use((req, res, next) => {
-  req.isLoggedIn = req.session.isLoggedIn
+  res.locals.isLoggedIn = req.session.isLoggedIn || false;
+  res.locals.user = req.session.user || null;
+  req.isLoggedIn = req.session.isLoggedIn || false;
   next();
 })
 
-app.use(authRouter)
+// Auth routes should come first (no protection needed)
+app.use(authRouter);
+
+// Store routes 
 app.use(storeRouter);
+
+// Protected host routes
 app.use("/host", (req, res, next) => {
   if (req.isLoggedIn) {
     next();

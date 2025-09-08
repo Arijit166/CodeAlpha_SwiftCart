@@ -3,6 +3,19 @@ const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 
 exports.getLogin = (req, res, next) => {
+  // If already logged in, redirect based on user type
+  if (req.session.isLoggedIn) {
+    if (req.session.user && req.session.user.userType === 'guest') {
+      return res.redirect("/homes");
+    } else if (req.session.user && req.session.user.userType === 'host') {
+      return res.redirect("/host/product-list");
+    }
+    return res.redirect("/");
+  }
+  
+  // Clear any potential session issues
+  req.session.errors = null;
+  
   res.render("auth/login", {
     pageTitle: "Login",
     currentPage: "login",
@@ -14,8 +27,21 @@ exports.getLogin = (req, res, next) => {
 };
 
 exports.getSignUp = (req, res, next) => {
+  // If already logged in, redirect based on user type
+  if (req.session.isLoggedIn) {
+    if (req.session.user && req.session.user.userType === 'guest') {
+      return res.redirect("/homes");
+    } else if (req.session.user && req.session.user.userType === 'host') {
+      return res.redirect("/host/product-list");
+    }
+    return res.redirect("/");
+  }
+  
+  // Clear any potential session issues
+  req.session.errors = null;
+  
   res.render("auth/signup", {
-    pageTitle: "Signup",
+    pageTitle: "Signup", 
     currentPage: "signup",
     isLoggedIn: false,
     errors: [],
@@ -39,7 +65,7 @@ exports.postSignUp = [
   check("email")
   .isEmail()
   .withMessage("Please enter a valid email")
-  .normalizeEmail(),
+  .trim(),
 
   check("password")
   .isLength({min: 8})
@@ -82,7 +108,9 @@ exports.postSignUp = [
   (req, res, next) => {
     const {firstName, lastName, email, password, userType} = req.body;
     const errors = validationResult(req);
+    
     if (!errors.isEmpty()) {
+      // Ensure we're rendering signup page even with errors
       return res.status(422).render("auth/signup", {
         pageTitle: "Signup",
         currentPage: "signup",
@@ -99,8 +127,10 @@ exports.postSignUp = [
       return user.save();
     })
     .then(() => {
+      // Successful signup - redirect to login
       res.redirect("/login");
     }).catch(err => {
+      // Error during signup - stay on signup page
       return res.status(422).render("auth/signup", {
         pageTitle: "Signup",
         currentPage: "signup",
@@ -111,46 +141,78 @@ exports.postSignUp = [
       });
     });
   }
-]
+];
 
 exports.postLogin = async (req, res, next) => {
   const {email, password} = req.body;
-  const user = await User.findOne({email});
-  if (!user) {
+  
+  // If no email or password provided, stay on login page
+  if (!email || !password) {
     return res.status(422).render("auth/login", {
       pageTitle: "Login",
       currentPage: "login",
       isLoggedIn: false,
-      errors: ["User does not exist"],
-      oldInput: {email},
+      errors: ["Please provide both email and password"],
+      oldInput: {email: email || ""},
       user: {},
     });
   }
-  const isMatch = await bcrypt.compare(password,user.password);
-  if(!isMatch){
+  
+  const trimmedEmail = email.trim();
+  
+  try {
+    const user = await User.findOne({email: trimmedEmail});
+    if (!user) {
+      return res.status(422).render("auth/login", {
+        pageTitle: "Login",
+        currentPage: "login",
+        isLoggedIn: false,
+        errors: ["User does not exist"],
+        oldInput: {email},
+        user: {},
+      });
+    }
+    
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(422).render("auth/login", {
+        pageTitle: "Login",
+        currentPage: "login",
+        isLoggedIn: false,
+        errors: ["Invalid password"],
+        oldInput: {email},
+        user: {},
+      });
+    }
+    
+    req.session.isLoggedIn = true;
+    req.session.user = user;
+    
+    await req.session.save();
+    
+    // Redirect based on user type
+    if (user.userType === 'guest') {
+      return res.redirect("/homes");
+    } else if (user.userType === 'host') {
+      return res.redirect("/host/product-list");
+    }
+    return res.redirect("/");
+    
+  } catch (err) {
+    console.error('Login error:', err);
     return res.status(422).render("auth/login", {
       pageTitle: "Login",
       currentPage: "login",
       isLoggedIn: false,
-      errors: ["Invalid password"],
+      errors: ["An error occurred during login"],
       oldInput: {email},
       user: {},
     });
   }
-  req.session.isLoggedIn = true;
-  req.session.user=user;
-  await req.session.save();
-  res.redirect("/");
-}
+};
 exports.postValidateHostKey = (req, res, next) => {
   const { hostKey } = req.body;
   const validHostKey = process.env.HOST_KEY;
-   // Debug logging - remove these after fixing
-  console.log('Received hostKey:', hostKey);
-  console.log('Expected hostKey from env:', validHostKey);
-  console.log('Are they equal?', hostKey === validHostKey);
-  console.log('Type of received:', typeof hostKey);
-  console.log('Type of env:', typeof validHostKey)
   res.json({
     valid: hostKey === validHostKey
   });
