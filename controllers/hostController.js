@@ -97,37 +97,51 @@ exports.postEditProduct = (req, res, next) => {
 
 const path = require('path');
 const rootDir = path.dirname(require.main.filename);
-
  exports.postDeleteProduct = (req, res, next) => {
   const productId = req.params.productId;
+  console.log("Delete request received for product ID:", productId);
 
-  Product.findById(productId)
-    .then((product) => {
-      if (!product) {
+  // Validate ObjectId format before querying
+  if (!productId || !productId.match(/^[0-9a-fA-F]{24}$/)) {
+    console.log("Invalid ObjectId format:", productId);
+    return res.redirect("/host/product-list");
+  }
+
+  Product.findByIdAndDelete(productId)
+    .then((deletedProduct) => {
+      if (!deletedProduct) {
         console.log("Product not found");
         return res.redirect("/host/product-list");
       }
 
-      // Absolute path to the image file
-      const imagePath = path.join(rootDir, product.image);
+      console.log("Product deleted from database:", deletedProduct.name);
+      console.log("Image path from DB:", deletedProduct.image);
 
-      // Delete the image file
-      fs.unlink(imagePath, (err) => {
-        if (err) {
-          console.log("Error deleting image file:", err);
+      // Handle image deletion after DB deletion
+      let imagePath;
+      if (deletedProduct.image.startsWith('/') || path.isAbsolute(deletedProduct.image)) {
+        imagePath = deletedProduct.image;
+      } else {
+        imagePath = path.join(process.cwd(), deletedProduct.image);
+      }
+
+      console.log("Constructed image path:", imagePath);
+
+      // Try to delete the image file (but don't wait for it)
+      fs.unlink(imagePath, (unlinkErr) => {
+        if (unlinkErr) {
+          console.log("Error deleting image file:", unlinkErr);
         } else {
-          console.log("Image file deleted:", imagePath);
+          console.log("Image file deleted successfully:", imagePath);
         }
       });
 
-      // Delete the document from the DB
-      return Product.findByIdAndDelete(productId);
-    })
-    .then(() => {
+      // Always redirect regardless of file deletion
       res.redirect("/host/product-list");
     })
     .catch((error) => {
       console.log("Error while deleting product:", error);
+      // Redirect even on error instead of sending error response
+      res.redirect("/host/product-list");
     });
 };
-

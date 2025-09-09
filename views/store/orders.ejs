@@ -30,6 +30,14 @@
 .animate-slide-out {
   animation: slide-out 0.3s ease-in forwards;
 }
+.modal-show {
+  transform: scale(1) !important;
+  opacity: 1 !important;
+}
+
+.transform {
+  transition: all 0.3s ease-out;
+}
 </style>
 
 <div class="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 relative overflow-hidden">
@@ -156,6 +164,13 @@
                 <% if (order.paymentDetails && order.paymentDetails.orderDate) { %>
                   <div class="mb-1">
                     📅 Ordered: <%= new Date(order.paymentDetails.orderDate).toLocaleDateString('en-IN') %>
+                  </div>
+                  <div class="mb-1 text-green-300 font-semibold">
+                    <% 
+                      const deliveryDate = new Date(order.paymentDetails.orderDate);
+                      deliveryDate.setDate(deliveryDate.getDate() + Math.floor(Math.random() * 7) + 1);
+                    %>
+                    🚚 Delivers by: <%= deliveryDate.toLocaleDateString('en-IN') %>
                   </div>
                 <% } %>
                 <% if (order.paymentDetails && order.paymentDetails.paymentId) { %>
@@ -292,18 +307,32 @@
 
 <script>
   function showConfirmation(orderId, productName, orderNumber) {
+    console.log('Showing confirmation for:', orderId, productName); // Debug log
+    
+    // Populate modal data
     document.getElementById('productName').innerHTML = `<strong>${productName}</strong>`;
     document.getElementById('cancelForm').action = `/orders/delete/${orderId}`;
+    
+    // Show modal with animation
     const modal = document.getElementById('confirmationModal');
+    const content = modal.querySelector('.transform');
+    
     modal.classList.remove('hidden');
+    
+    // Force reflow before adding animation classes
+    modal.offsetHeight;
+    
     setTimeout(() => {
-      modal.querySelector('.transform').classList.add('modal-show');
-    }, 10);
+      content.classList.add('modal-show');
+    }, 50);
   }
 
   function hideConfirmation() {
     const modal = document.getElementById('confirmationModal');
-    modal.querySelector('.transform').classList.remove('modal-show');
+    const content = modal.querySelector('.transform');
+    
+    content.classList.remove('modal-show');
+    
     setTimeout(() => {
       modal.classList.add('hidden');
     }, 300);
@@ -318,7 +347,7 @@
 
   // Close modal with Escape key
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
+    if (e.key === 'Escape' && !document.getElementById('confirmationModal').classList.contains('hidden')) {
       hideConfirmation();
     }
   });
@@ -500,13 +529,30 @@
   function closeMessage(messageId) {
     const element = document.getElementById(messageId);
     if (element) {
-      element.querySelector('div').classList.remove('animate-slide-in');
-      element.querySelector('div').classList.add('animate-slide-out');
+      element.querySelector('.bg-gradient-to-r').classList.remove('animate-slide-in');
+      element.querySelector('.bg-gradient-to-r').classList.add('animate-slide-out');
       setTimeout(() => {
-        element.style.display = 'none';
+        element.remove();
       }, 300);
     }
   }
+
+  // Auto-hide messages after specific delays
+  document.addEventListener('DOMContentLoaded', function() {
+    const successMessage = document.getElementById('successMessage');
+    if (successMessage) {
+      setTimeout(() => {
+        closeMessage('successMessage');
+      }, 2500); // 2.5 seconds for success messages
+    }
+    
+    const errorMessage = document.getElementById('errorMessage');
+    if (errorMessage) {
+      setTimeout(() => {
+        closeMessage('errorMessage');
+      }, 4000); // 4 seconds for error messages
+    }
+  });
 
   // Auto-hide success messages after 3 seconds
   document.addEventListener('DOMContentLoaded', function() {

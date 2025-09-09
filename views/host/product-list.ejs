@@ -69,7 +69,7 @@
                 </a>
 
                 <!-- Delete Button -->
-                <button onclick="showDeleteConfirmation('<%= product._id %>', '<%= product.name %>'); return false;" 
+                <button onclick="showDeleteConfirmation('<%= product._id %>', '<%= product.name %>')" 
                         class="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-red-600 text-white font-bold py-2 px-4 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 ml-2">
                   🗑️ Delete
                 </button>
@@ -80,8 +80,9 @@
     </div>
   </div>
 </div>
-<div id="deleteModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
-  <div class="bg-white/10 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border border-white/20 max-w-md mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
+<!-- Replace your existing modal div with this one -->
+<div id="deleteModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center">
+  <div class="bg-white/10 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border border-white/20 max-w-md mx-4 transform transition-all duration-300" id="modalContent">
     <!-- Modal Header -->
     <div class="text-center mb-6">
       <div class="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -103,7 +104,7 @@
       </button>
     </div>
   </div>
-</div>             
+</div>      
 <style>
   @keyframes pulse {
     0%, 100% { opacity: 0.2; }
@@ -179,7 +180,7 @@
 </style>
 
 <script>
-  // Blinking Stars Script
+  // Blinking Stars Script (keep your existing stars code)
   function createStars() {
     const starContainer = document.body;
     const numberOfStars = 50;
@@ -190,64 +191,49 @@
       const star = document.createElement('div');
       star.className = 'star';
       
-      // Random star symbol
       star.textContent = starSymbols[Math.floor(Math.random() * starSymbols.length)];
       
-      // Random position
       let left = Math.random() * 100;
       let top = Math.random() * 100;
       
-      // Check if star would overlap with signup box area (roughly center area)
-      // Signup box is roughly centered, so avoid the middle 40% width and height
-      const signupBoxLeft = 30; // roughly 30% from left
-      const signupBoxRight = 70; // roughly 70% from left
-      const signupBoxTop = 20; // roughly 20% from top
-      const signupBoxBottom = 80; // roughly 80% from top
+      const signupBoxLeft = 30;
+      const signupBoxRight = 70;
+      const signupBoxTop = 20;
+      const signupBoxBottom = 80;
       
-      // If star would be in signup box area, reposition it
       if (left > signupBoxLeft && left < signupBoxRight && top > signupBoxTop && top < signupBoxBottom) {
-        // Move to edges instead
         if (Math.random() < 0.5) {
-          left = Math.random() < 0.5 ? Math.random() * 25 : 75 + Math.random() * 25; // left or right edge
+          left = Math.random() < 0.5 ? Math.random() * 25 : 75 + Math.random() * 25;
         } else {
-          top = Math.random() < 0.5 ? Math.random() * 15 : 85 + Math.random() * 15; // top or bottom edge
+          top = Math.random() < 0.5 ? Math.random() * 15 : 85 + Math.random() * 15;
         }
       }
       
       star.style.left = left + '%';
       star.style.top = top + '%';
       
-      // Random size
-      const size = Math.random() * 8 + 8; // 8px to 16px
+      const size = Math.random() * 8 + 8;
       star.style.fontSize = size + 'px';
       
-      // Random animation
       const animationClass = animationClasses[Math.floor(Math.random() * animationClasses.length)];
       star.classList.add(animationClass);
       
-      // Random animation delay
       star.style.animationDelay = Math.random() * 3 + 's';
-      
-      // Random opacity
       star.style.opacity = Math.random() * 0.8 + 0.2;
       
       starContainer.appendChild(star);
     }
   }
 
-  // Create stars when page loads
   document.addEventListener('DOMContentLoaded', createStars);
 
-  // Optional: Add more stars periodically
   setInterval(() => {
-    // Remove old stars occasionally to prevent too many elements
     const existingStars = document.querySelectorAll('.star');
     if (existingStars.length > 100) {
       existingStars[0].remove();
     }
     
-    // Add a new star occasionally
-    if (Math.random() < 0.1) { // 10% chance every interval
+    if (Math.random() < 0.1) {
       const star = document.createElement('div');
       star.className = 'star star-twinkle';
       star.textContent = ['✦', '✧', '⭐', '✨', '⋆'][Math.floor(Math.random() * 5)];
@@ -255,7 +241,6 @@
       let left = Math.random() * 100;
       let top = Math.random() * 100;
       
-      // Avoid signup box area for new stars too
       const signupBoxLeft = 30;
       const signupBoxRight = 70;
       const signupBoxTop = 20;
@@ -276,66 +261,81 @@
       star.style.opacity = Math.random() * 0.8 + 0.2;
       document.body.appendChild(star);
     }
-  }, 5000); // Check every 5 seconds
+  }, 5000);
   let productToDelete = null;
 
-  // Show delete confirmation modal
   function showDeleteConfirmation(productId, productName) {
-    event.preventDefault(); // Add this line
+    console.log('Delete button clicked for:', productId, productName);
     
-    productToDelete = productId;
+    // Validate productId - check if it's a valid ObjectId format
+    if (!productId || productId === 'null' || productId === 'undefined' || productId.length !== 24) {
+      console.error('Invalid product ID:', productId);
+      alert('Error: Invalid product ID');
+      return false;
+    }
+    
+    // Ensure productId is a string and trim any whitespace
+    productToDelete = String(productId).trim();
+    
+    // Store in a data attribute as backup
     const modal = document.getElementById('deleteModal');
-    const modalContent = document.getElementById('modalContent');
-    const messageElement = document.getElementById('deleteMessage');
+    modal.setAttribute('data-product-id', productToDelete);
     
-    messageElement.textContent = `Are you sure you want to delete "${productName}"? This action cannot be undone.`;
+    // Update message
+    document.getElementById('deleteMessage').textContent = 
+      `Are you sure you want to delete "${productName}"? This action cannot be undone.`;
     
+    // Show modal
     modal.classList.remove('hidden');
+    modal.classList.add('flex');
     
-    setTimeout(() => {
-      modalContent.classList.remove('scale-95', 'opacity-0');
-      modalContent.classList.add('scale-100', 'opacity-100');
-    }, 10);
-    
-    return false; // Add this line
+    console.log('Modal should now be visible for product:', productToDelete);
+    return false;
   }
 
-  // Close delete confirmation modal
   function closeDeleteModal() {
     const modal = document.getElementById('deleteModal');
-    const modalContent = document.getElementById('modalContent');
-    
-    // Animate modal disappearance
-    modalContent.classList.remove('scale-100', 'opacity-100');
-    modalContent.classList.add('scale-95', 'opacity-0');
-    
-    setTimeout(() => {
-      modal.classList.add('hidden');
-      productToDelete = null;
-    }, 300);
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    // Don't reset productToDelete here to avoid losing it
   }
 
-  // Confirm delete action
   function confirmDelete() {
-    if (productToDelete) {
-      // Close modal first
-      closeDeleteModal();
-      
-      // Small delay to let modal close, then redirect
-      setTimeout(() => {
-        // Create a form and submit it to delete the product
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/host/delete-product/${productToDelete}`;
-        document.body.appendChild(form);
-        form.submit();
-      }, 100);
+    // Get product ID from both sources as backup
+    let productId = productToDelete;
+    if (!productId) {
+      const modal = document.getElementById('deleteModal');
+      productId = modal.getAttribute('data-product-id');
     }
+    
+    if (!productId || productId === 'null' || productId === 'undefined') {
+      console.error('No product selected for deletion');
+      alert('Error: No product selected for deletion');
+      return;
+    }
+    
+    console.log('Confirming deletion of product:', productId);
+    
+    // Close modal
+    closeDeleteModal();
+    
+    // Create and submit form
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/host/delete-product/${productId}`;
+    form.style.display = 'none';
+    
+    document.body.appendChild(form);
+    form.submit();
+    
+    // Reset after form submission
+    productToDelete = null;
   }
 
   // Close modal when clicking outside
-  document.getElementById('deleteModal').addEventListener('click', function(e) {
-    if (e.target === this) {
+  document.addEventListener('click', function(e) {
+    const modal = document.getElementById('deleteModal');
+    if (e.target === modal) {
       closeDeleteModal();
     }
   });
@@ -343,7 +343,10 @@
   // Close modal with Escape key
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-      closeDeleteModal();
+      const modal = document.getElementById('deleteModal');
+      if (modal && !modal.classList.contains('hidden')) {
+        closeDeleteModal();
+      }
     }
   });
 </script>

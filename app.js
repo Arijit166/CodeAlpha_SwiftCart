@@ -58,7 +58,8 @@ const multerOptions={
 app.use(express.urlencoded());
 app.use(express.json());
 app.use(multer(multerOptions).single("image"))
-app.use(express.static(path.join(rootDir, 'public'))) 
+app.use(express.static(path.join(rootDir, 'public')))
+app.use(express.static('.')); 
 app.use("/uploads", express.static(path.join(rootDir, 'uploads')))
 app.use("/host/uploads", express.static(path.join(rootDir, 'uploads')))
 app.use("/product/uploads", express.static(path.join(rootDir, 'uploads')))
