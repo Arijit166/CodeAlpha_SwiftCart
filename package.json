@@ -23,7 +23,8 @@
     "mongodb": "^6.17.0",
     "mongoose": "^8.16.1",
     "multer": "^2.0.1",
-    "mysql2": "^3.14.1"
+    "mysql2": "^3.14.1",
+    "razorpay": "^2.9.6"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",

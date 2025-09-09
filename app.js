@@ -93,6 +93,23 @@ app.use("/host", (req, res, next) => {
 });
 app.use("/host", hostRouter);
 
+const Razorpay = require('razorpay');
+
+// Initialize Razorpay instance
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+
+// Make razorpay instance available to routes
+app.locals.razorpay = razorpay;
+
+// Add this middleware to make Razorpay key available in templates
+app.use((req, res, next) => {
+  res.locals.RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
+  next();
+});
+
 app.use(errorsController.pageNotFound);
 
 const PORT = 2006;

@@ -29,15 +29,6 @@ exports.getIndex = async (req, res, next) => {
 exports.getProducts = async (req, res, next) => {
   try {
     const orderedProducts = await Product.find();
-    let orderedProductIds = [];
-
-    // Check if user is logged in and get their orders
-    if (req.session.user) {
-      const user = await User.findById(req.session.user._id);
-      if (user.orders && user.orders.length > 0) {
-        orderedProductIds = user.orders.map(id => id.toString());
-      }
-    }
 
     res.render("store/product-list", {
       orderedProducts: orderedProducts,
@@ -45,7 +36,7 @@ exports.getProducts = async (req, res, next) => {
       currentPage: "Products",
       isLoggedIn: req.isLoggedIn, 
       user: req.session.user,
-      orderedProductIds: orderedProductIds, // ✅ Added for order status tracking
+      // Remove orderedProductIds since we're not restricting orders anymore
     });
   } catch (err) {
     console.error("Error loading products:", err);
@@ -58,15 +49,25 @@ exports.getProducts = async (req, res, next) => {
 };
 
 exports.getOrders = async (req, res, next) => {
-  const userId = req.session.user._id;
-  const user = await User.findById(userId).populate('orders');
-  res.render("store/orders", {
-    orderedProducts: user.orders,
-    pageTitle: "My Orders",
-    currentPage: "orders",
-    isLoggedIn: req.isLoggedIn, 
-    user: req.session.user,
-  });
+  try {
+    const userId = req.session.user._id;
+    const user = await User.findById(userId).populate('orders.product');
+    
+    res.render("store/orders", {
+      orderedProducts: user.orders || [],
+      pageTitle: "My Orders",
+      currentPage: "orders",
+      isLoggedIn: req.isLoggedIn, 
+      user: req.session.user,
+    });
+  } catch (err) {
+    console.error("Error loading orders:", err);
+    res.status(500).render("error/500", {
+      pageTitle: "Error",
+      isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
+    });
+  }
 };
 
 exports.postOrders = async (req, res, next) => {
@@ -76,33 +77,27 @@ exports.postOrders = async (req, res, next) => {
   try {
     const user = await User.findById(userId);
 
-    if (user.orders && user.orders.some(b => b.toString() === productId)) {
-      return res.redirect("/orders");
-    }
-
-    if (user.orders && user.orders.length > 0) {
-      const userWithorders = await User.findById(userId).populate('orders');
-      return res.render("store/orders", {
-        orderedProducts: userWithorders.orders,
-        pageTitle: "My orders",
-        currentPage: "orders",
-        isLoggedIn: req.isLoggedIn,
-        user: req.session.user,
-      });
-    }
-
-    // Add the new booking
+    // Always add new order (remove restriction checks)
     if (!user.orders) {
-      user.orders = [productId];
-    } else {
-      user.orders.push(productId);
+      user.orders = [];
     }
+
+    // Add new order with default quantity of 1
+    user.orders.push({
+      product: productId,
+      quantity: 1,
+      paymentDetails: {
+        paymentId: `direct_${Date.now()}`,
+        orderId: `order_${Date.now()}`,
+        orderDate: new Date()
+      }
+    });
 
     await user.save();
     res.redirect("/orders");
 
   } catch (err) {
-    console.error("Error in postorders:", err);
+    console.error("Error in postOrders:", err);
     res.status(500).render("error/500", {
       pageTitle: "Error",
       isLoggedIn: req.isLoggedIn,
@@ -112,11 +107,10 @@ exports.postOrders = async (req, res, next) => {
 };
 
 exports.postCancelOrders = async (req, res, next) => {
-  const productId = req.params.productId;
+  const orderId = req.params.productId; // This is actually the order._id
   const userId = req.session.user._id;
 
   try {
-    // Find the user and remove the booking
     const user = await User.findById(userId);
     
     if (!user) {
@@ -127,17 +121,11 @@ exports.postCancelOrders = async (req, res, next) => {
       });
     }
 
-    // Check if the booking exists
-    if (!user.orders || !user.orders.includes(productId)) {
-      return res.redirect("/orders");
-    }
-
-    // Remove the booking
-    user.orders = user.orders.filter(order => order.toString() !== productId);
+    // Remove the specific order by its _id
+    user.orders = user.orders.filter(order => order._id.toString() !== orderId);
     await user.save();
 
-    // Redirect to home page with success (as per original logic)
-    res.redirect("/product-list");
+    res.redirect("/orders");
 
   } catch (err) {
     console.error("Error in postCancelOrders:", err);
@@ -148,7 +136,6 @@ exports.postCancelOrders = async (req, res, next) => {
     });
   }
 };
-
 exports.getOrderList = async (req, res, next) => {
   const userId = req.session.user._id;
   const user = await User.findById(userId).populate('carts');
@@ -218,4 +205,134 @@ exports.getProductDetails = (req, res, next) => {
       });
     }
   });
+};
+
+// Get order form with quantity selection
+exports.getOrderForm = async (req, res, next) => {
+  const productId = req.params.productId;
+  
+  try {
+    const product = await Product.findById(productId);
+    
+    if (!product) {
+      return res.redirect("/product-list");
+    }
+
+    res.render("store/order-form", {
+      product: product,
+      pageTitle: "Order Product",
+      currentPage: "order",
+      isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
+    });
+  } catch (err) {
+    console.error("Error loading order form:", err);
+    res.status(500).render("error/500", {
+      pageTitle: "Error",
+      isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
+    });
+  }
+};
+
+// Create Razorpay order
+exports.createRazorpayOrder = async (req, res, next) => {
+  const { productId, quantity } = req.body;
+  
+  try {
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    const amount = product.price * quantity * 100; // Razorpay expects amount in paise
+    
+    const options = {
+      amount: amount,
+      currency: 'INR',
+      receipt: `order_${Date.now()}`,
+      payment_capture: 1,
+      notes: {
+        productId: productId,
+        quantity: quantity,
+        userId: req.session.user._id
+      }
+    };
+
+    const order = await req.app.locals.razorpay.orders.create(options);
+    
+    res.json({
+      orderId: order.id,
+      amount: amount,
+      currency: 'INR',
+      key: process.env.RAZORPAY_KEY_ID,
+      product: {
+        name: product.name,
+        price: product.price,
+        image: product.image
+      },
+      user: {
+        name: `${req.session.user.firstName} ${req.session.user.lastName || ''}`,
+        email: req.session.user.email
+      },
+      quantity: quantity
+    });
+  } catch (err) {
+    console.error("Error creating Razorpay order:", err);
+    res.status(500).json({ error: "Failed to create order" });
+  }
+};
+
+exports.verifyPayment = async (req, res, next) => {
+  const { 
+    razorpay_order_id, 
+    razorpay_payment_id, 
+    razorpay_signature,
+    productId,
+    quantity 
+  } = req.body;
+
+  try {
+    const crypto = require('crypto');
+    const body = razorpay_order_id + "|" + razorpay_payment_id;
+    
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(body.toString())
+      .digest("hex");
+
+    if (expectedSignature === razorpay_signature) {
+      // Payment verified successfully
+      const userId = req.session.user._id;
+      const user = await User.findById(userId);
+
+      // Check if orders array exists, if not create it
+      if (!user.orders) {
+        user.orders = [];
+      }
+
+      // Always add new order (allow multiple orders of same product)
+      user.orders.push({
+        product: productId,
+        quantity: parseInt(quantity),
+        paymentDetails: {
+          paymentId: razorpay_payment_id,
+          orderId: razorpay_order_id,
+          orderDate: new Date()
+        }
+      });
+
+      await user.save();
+
+      res.json({ 
+        success: true, 
+        message: "Payment verified and order placed successfully" 
+      });
+    } else {
+      res.status(400).json({ success: false, message: "Payment verification failed" });
+    }
+  } catch (err) {
+    console.error("Error verifying payment:", err);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
 };

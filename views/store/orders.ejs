@@ -39,7 +39,7 @@
 
     <!-- Properties Grid -->
     <div class="flex flex-wrap justify-center gap-8 max-w-7xl mx-auto">
-      <% orderedProducts.forEach(product => { %> 
+      <% orderedProducts.forEach((order, index) => { %> 
         <div class="group relative w-full max-w-sm flex-shrink-0">
           
           <!-- Main Card -->
@@ -47,14 +47,24 @@
             
             <!-- Image Section -->
             <div class="relative overflow-hidden">
-              <img src="<%= product.image %>" alt="<%= product.name %>" class="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-700">
+              <img src="<%= order.product.image %>" alt="<%= order.product.name %>" class="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-700">
               
               <!-- Gradient Overlay -->
               <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               
               <!-- Rating Badge -->
               <div class="absolute top-4 right-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full px-3 py-1 flex items-center shadow-lg transform group-hover:scale-110 transition-transform duration-300">
-                <span class="text-sm font-bold">⭐ <%= product.rating %></span>
+                <span class="text-sm font-bold">⭐ <%= order.product.rating %></span>
+              </div>
+
+              <!-- Quantity Badge -->
+              <div class="absolute top-4 left-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full px-3 py-1 flex items-center shadow-lg transform group-hover:scale-110 transition-transform duration-300">
+                <span class="text-sm font-bold">Qty: <%= order.quantity %></span>
+              </div>
+
+              <!-- Order Number Badge -->
+              <div class="absolute bottom-4 right-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-full px-3 py-1 flex items-center shadow-lg">
+                <span class="text-xs font-bold">Order #<%= index + 1 %></span>
               </div>
             </div>
             
@@ -62,25 +72,42 @@
             <div class="p-6 bg-gradient-to-b from-white/15 to-white/5 backdrop-blur-sm">
               <!-- Product Name -->
               <h3 class="text-xl font-bold text-white mb-3 truncate drop-shadow-lg">
-                <%= product.name %>
+                <%= order.product.name %>
               </h3>
- 
-              <!-- Price -->
-              <div class="mb-6">
-                <div class="text-2xl font-black text-white drop-shadow-lg">
-                  <span class="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">₹<%= product.price %></span>
+
+              <!-- Price Information -->
+              <div class="mb-4">
+                <div class="text-lg text-gray-300 mb-1">Price: 
+                  <span class="text-white font-semibold">₹<%= order.product.price %></span>
                 </div>
+                <div class="text-2xl font-black text-white drop-shadow-lg">
+                  Total: <span class="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">₹<%= order.product.price * order.quantity %></span>
+                </div>
+              </div>
+
+              <!-- Order Date & Payment ID -->
+              <div class="mb-4 text-sm text-gray-300">
+                <% if (order.paymentDetails && order.paymentDetails.orderDate) { %>
+                  <div class="mb-1">
+                    📅 Ordered: <%= new Date(order.paymentDetails.orderDate).toLocaleDateString('en-IN') %>
+                  </div>
+                <% } %>
+                <% if (order.paymentDetails && order.paymentDetails.paymentId) { %>
+                  <div class="text-xs opacity-75">
+                    💳 Payment ID: <%= order.paymentDetails.paymentId.substring(0, 15) %>...
+                  </div>
+                <% } %>
               </div>
               
               <!-- Cancel Button -->
               <div class="w-full">
-                <button onclick="showConfirmation('<%= product._id %>', '<%= product.name %>')" 
+                <button onclick="showConfirmation('<%= order._id %>', '<%= order.product.name %>', '<%= index + 1 %>')" 
                   class="w-full bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl">
                   <span class="flex items-center justify-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
-                     Cancel Order
+                    Cancel Order #<%= index + 1 %>
                   </span>
                 </button>
               </div>
@@ -198,9 +225,9 @@
 </style>
 
 <script>
-  function showConfirmation(productId, productName) {
-    document.getElementById('productName').textContent = productName;
-    document.getElementById('cancelForm').action = `/orders/delete/${productId}`;
+  function showConfirmation(orderId, productName, orderNumber) {
+    document.getElementById('productName').innerHTML = `<strong>${productName}</strong><br><small>Order #${orderNumber}</small>`;
+    document.getElementById('cancelForm').action = `/orders/delete/${orderId}`;
     const modal = document.getElementById('confirmationModal');
     modal.classList.remove('hidden');
     setTimeout(() => {

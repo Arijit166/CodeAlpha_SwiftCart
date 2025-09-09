@@ -1,4 +1,4 @@
-# 🏠 SwiftCart
+# 🛒 SwiftCart
 
 **SwiftCart** is a modern and responsive shopping platform built with Node.js, Express, and Mongoose, using EJS templating for dynamic server-side rendering and Tailwind CSS for sleek UI styling. Designed with distinct views for admins and customers, SwiftCart delivers a clean, user-friendly experience with full authentication and seamless shopping capabilities.
 
