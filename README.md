@@ -60,7 +60,7 @@ npm run dev
   "start": "node app.js"
 }
 ```
-
+---
 ## ✅ Features
 
 🛍️ Beautiful and responsive shopping layout
@@ -71,6 +71,8 @@ npm run dev
 
 🛒 Add to cart, update cart, and checkout system
 
+💳 Payment gateway integration through Razorpay
+
 ♻️ Reusable EJS partials for layout consistency
 
 📱 Mobile-optimized design using Tailwind CSS
@@ -79,16 +81,7 @@ npm run dev
 
 🧰 Mongoose-based MongoDB integration
 
-## 🔮 Planned Features
-
-💳 Payment gateway integration (e.g., Razorpay/Stripe)
-
-📦 Order management dashboard for admins
-
-☁️ Cloud-based product image upload (e.g., Cloudinary)
-
-📊 Sales and user analytics (for admins)
-
+---
 ## 📄 License
 Licensed under the MIT License.
 
