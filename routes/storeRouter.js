@@ -9,7 +9,6 @@ const isAuth = require("../middleware/isAuth");
 storeRouter.get("/", storeController.getIndex);
 storeRouter.get("/product-list", storeController.getProducts);
 storeRouter.get("/orders", storeController.getOrders);
-storeRouter.post("/orders", storeController.postOrders);
 storeRouter.get("/orders", storeController.getOrderList);
 storeRouter.post("/orders/delete/:productId", storeController.postCancelOrders);
 storeRouter.get("/product-detail/:productId", storeController.getProductDetails);

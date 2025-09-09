@@ -30,16 +30,23 @@ const userSchema = mongoose.Schema({
     product: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Product',
-      required: true
+      required: [true, 'Product is required for order']
     },
     quantity: {
       type: Number,
-      required: true,
-      min: 1
+      required: [true, 'Quantity is required for order'],
+      min: [1, 'Quantity must be at least 1'],
+      default: 1
     },
     paymentDetails: {
-      paymentId: String,
-      orderId: String,
+      paymentId: {
+        type: String,
+        required: [true, 'Payment ID is required']
+      },
+      orderId: {
+        type: String,
+        required: [true, 'Order ID is required']
+      },
       orderDate: {
         type: Date,
         default: Date.now

@@ -52,6 +52,12 @@
           
           <form id="orderForm">
             <input type="hidden" id="productId" value="<%= product._id %>">
+            <input type="hidden" id="productPrice" value="<%= product.price %>">
+            <input type="hidden" id="razorpayKey" value="<%= process.env.RAZORPAY_KEY_ID %>">
+            <input type="hidden" id="productName" value="<%= product.name %>">
+            <input type="hidden" id="productImage" value="/<%= product.image %>">
+            <input type="hidden" id="userName" value="<%= user.firstName %> <%= user.lastName || '' %>">
+            <input type="hidden" id="userEmail" value="<%= user.email %>">
             
             <!-- Quantity Selection -->
             <div class="mb-6">
@@ -118,7 +124,7 @@
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-  // Get product data from hidden inputs (no EJS in JavaScript)
+  // Get product data from hidden inputs
   const productPrice = parseInt(document.getElementById('productPrice').value);
   const productId = document.getElementById('productId').value;
   const razorpayKey = document.getElementById('razorpayKey').value;
@@ -177,12 +183,12 @@
       if (data.orderId) {
         // Initialize Razorpay
         const options = {
-          key: razorpayKey,
+          key: data.key, // Use key from response
           amount: data.amount,
           currency: data.currency,
           name: 'SwiftCart',
-          description: `${productName} (Qty: ${quantity})`,
-          image: productImage,
+          description: `${data.product.name} (Qty: ${quantity})`,
+          image: data.product.image,
           order_id: data.orderId,
           handler: async function (response) {
             // Verify payment
@@ -207,15 +213,15 @@
               const qty = document.getElementById('quantity').value;
               const total = productPrice * qty;
               
-              alert(`🎉 Order placed successfully!\n\nProduct: ${productName}\nQuantity: ${qty}\nTotal: ₹${total}\n\nYou can order this product again anytime!`);
+              alert(`🎉 Order placed successfully!\n\nProduct: ${data.product.name}\nQuantity: ${qty}\nTotal: ₹${total}\n\nYou can order this product again anytime!`);
               window.location.href = '/orders';
             } else {
               alert('❌ Payment verification failed! Please try again.');
             }
           },
           prefill: {
-            name: userName,
-            email: userEmail
+            name: data.user.name,
+            email: data.user.email
           },
           theme: {
             color: '#3B82F6'

@@ -1,5 +1,6 @@
 const Product = require("../models/product");
 const User = require("../models/user");
+const mongoose = require("mongoose");
 
 
 exports.getIndex = async (req, res, next) => {
@@ -53,8 +54,19 @@ exports.getOrders = async (req, res, next) => {
     const userId = req.session.user._id;
     const user = await User.findById(userId).populate('orders.product');
     
+    // Filter out orders with null/undefined products and add error handling
+    const validOrders = user.orders ? user.orders.filter(order => {
+      if (!order.product) {
+        console.log('Found order with missing product:', order._id);
+        return false;
+      }
+      return true;
+    }) : [];
+
+    console.log(`Found ${validOrders.length} valid orders for user ${userId}`);
+    
     res.render("store/orders", {
-      orderedProducts: user.orders || [],
+      orderedProducts: validOrders,
       pageTitle: "My Orders",
       currentPage: "orders",
       isLoggedIn: req.isLoggedIn, 
@@ -62,42 +74,6 @@ exports.getOrders = async (req, res, next) => {
     });
   } catch (err) {
     console.error("Error loading orders:", err);
-    res.status(500).render("error/500", {
-      pageTitle: "Error",
-      isLoggedIn: req.isLoggedIn,
-      user: req.session.user,
-    });
-  }
-};
-
-exports.postOrders = async (req, res, next) => {
-  const productId = req.body.id;
-  const userId = req.session.user._id;
-
-  try {
-    const user = await User.findById(userId);
-
-    // Always add new order (remove restriction checks)
-    if (!user.orders) {
-      user.orders = [];
-    }
-
-    // Add new order with default quantity of 1
-    user.orders.push({
-      product: productId,
-      quantity: 1,
-      paymentDetails: {
-        paymentId: `direct_${Date.now()}`,
-        orderId: `order_${Date.now()}`,
-        orderDate: new Date()
-      }
-    });
-
-    await user.save();
-    res.redirect("/orders");
-
-  } catch (err) {
-    console.error("Error in postOrders:", err);
     res.status(500).render("error/500", {
       pageTitle: "Error",
       isLoggedIn: req.isLoggedIn,
@@ -170,23 +146,59 @@ exports.getCartList = async (req, res, next) => {
 exports.postAddToCart = async (req, res, next) => {
   const productId = req.body.id;
   const userId = req.session.user._id;
-  const user = await User.findById(userId);
-  if (!user.carts.includes(productId)) {
-    user.carts.push(productId);
-    await user.save();
+  
+  try {
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).render("error/404", {
+        pageTitle: "User Not Found",
+        isLoggedIn: req.isLoggedIn,
+        user: req.session.user,
+      });
+    }
+
+    if (!user.carts.includes(productId)) {
+      user.carts.push(productId);
+      
+      // Save only the carts field to avoid validation on other fields
+      await User.findByIdAndUpdate(userId, 
+        { $addToSet: { carts: productId } }, 
+        { runValidators: false }
+      );
+    }
+    
+    res.redirect("/cart-list");
+  } catch (err) {
+    console.error("Error adding to cart:", err);
+    res.status(500).render("error/500", {
+      pageTitle: "Error",
+      isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
+    });
   }
-  res.redirect("/cart-list");
 };
 
 exports.postRemoveFromCart = async (req, res, next) => {
   const productId = req.params.productId;
   const userId = req.session.user._id;
-  const user = await User.findById(userId);
-  if (user.carts.includes(productId)) {
-    user.carts = user.carts.filter(fav => fav != productId);
-    await user.save();
+  
+  try {
+    // Remove from cart using MongoDB update to avoid validation on other fields
+    await User.findByIdAndUpdate(userId, 
+      { $pull: { carts: productId } }, 
+      { runValidators: false }
+    );
+    
+    res.redirect("/cart-list");
+  } catch (err) {
+    console.error("Error removing from cart:", err);
+    res.status(500).render("error/500", {
+      pageTitle: "Error",
+      isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
+    });
   }
-  res.redirect("/cart-list");
 };
 
 exports.getProductDetails = (req, res, next) => {
