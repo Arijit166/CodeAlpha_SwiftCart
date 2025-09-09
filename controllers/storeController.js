@@ -48,7 +48,6 @@ exports.getProducts = async (req, res, next) => {
     });
   }
 };
-
 exports.getOrders = async (req, res, next) => {
   try {
     const userId = req.session.user._id;
@@ -65,20 +64,36 @@ exports.getOrders = async (req, res, next) => {
 
     console.log(`Found ${validOrders.length} valid orders for user ${userId}`);
     
+    // Check for messages in query parameters
+    let errorMessage = null;
+    let successMessage = null;
+    
+    // Handle error messages
+    if (req.query.error === 'cancel_failed') {
+      errorMessage = 'Failed to cancel order. Please try again.';
+    } else if (req.query.error === 'order_not_found') {
+      errorMessage = 'Order not found or already cancelled.';
+    } else if (req.query.error === 'orders_load_failed') {
+      errorMessage = 'Failed to load orders. Please refresh the page.';
+    }
+    
+    // Handle success messages
+    if (req.query.success === 'order_cancelled') {
+      successMessage = 'Order cancelled successfully!';
+    }
+    
     res.render("store/orders", {
       orderedProducts: validOrders,
       pageTitle: "My Orders",
       currentPage: "orders",
       isLoggedIn: req.isLoggedIn, 
       user: req.session.user,
+      errorMessage: errorMessage,
+      successMessage: successMessage
     });
   } catch (err) {
     console.error("Error loading orders:", err);
-    res.status(500).render("error/500", {
-      pageTitle: "Error",
-      isLoggedIn: req.isLoggedIn,
-      user: req.session.user,
-    });
+    res.redirect("/?error=orders_load_failed");
   }
 };
 
@@ -87,29 +102,32 @@ exports.postCancelOrders = async (req, res, next) => {
   const userId = req.session.user._id;
 
   try {
-    const user = await User.findById(userId);
+    console.log('Attempting to cancel order:', orderId, 'for user:', userId);
     
-    if (!user) {
-      return res.status(404).render("error/404", {
-        pageTitle: "User Not Found",
-        isLoggedIn: req.isLoggedIn,
-        user: req.session.user,
-      });
+    // Use MongoDB $pull operation to remove the order directly without validation
+    const result = await User.updateOne(
+      { _id: userId },
+      { 
+        $pull: { 
+          orders: { _id: orderId } 
+        } 
+      }
+    );
+
+    console.log('Update result:', result);
+
+    if (result.modifiedCount === 0) {
+      console.log('No order was removed - order might not exist');
+      return res.redirect("/orders?error=order_not_found");
     }
 
-    // Remove the specific order by its _id
-    user.orders = user.orders.filter(order => order._id.toString() !== orderId);
-    await user.save();
-
-    res.redirect("/orders");
+    console.log('Order cancelled successfully');
+    // Redirect with success message instead of just redirecting
+    res.redirect("/orders?success=order_cancelled");
 
   } catch (err) {
     console.error("Error in postCancelOrders:", err);
-    res.status(500).render("error/500", {
-      pageTitle: "Error",
-      isLoggedIn: req.isLoggedIn,
-      user: req.session.user,
-    });
+    res.redirect("/orders?error=cancel_failed");
   }
 };
 exports.getOrderList = async (req, res, next) => {
@@ -296,6 +314,9 @@ exports.createRazorpayOrder = async (req, res, next) => {
 };
 
 exports.verifyPayment = async (req, res, next) => {
+  // Add debugging to see what's being received
+  console.log('Request body:', req.body);
+  
   const { 
     razorpay_order_id, 
     razorpay_payment_id, 
@@ -303,6 +324,30 @@ exports.verifyPayment = async (req, res, next) => {
     productId,
     quantity 
   } = req.body;
+
+  // Debug the extracted values
+  console.log('Extracted values:', {
+    razorpay_order_id,
+    razorpay_payment_id,
+    razorpay_signature,
+    productId,
+    quantity
+  });
+
+  // Validate that all required fields are present
+  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !productId || !quantity) {
+    return res.status(400).json({ 
+      success: false, 
+      message: "Missing required payment verification data",
+      received: {
+        razorpay_order_id: !!razorpay_order_id,
+        razorpay_payment_id: !!razorpay_payment_id,
+        razorpay_signature: !!razorpay_signature,
+        productId: !!productId,
+        quantity: !!quantity
+      }
+    });
+  }
 
   try {
     const crypto = require('crypto');
@@ -316,31 +361,44 @@ exports.verifyPayment = async (req, res, next) => {
     if (expectedSignature === razorpay_signature) {
       // Payment verified successfully
       const userId = req.session.user._id;
-      const user = await User.findById(userId);
+      
+      // Use findByIdAndUpdate with $push to avoid validation issues
+      const updateResult = await User.findByIdAndUpdate(
+        userId,
+        {
+          $push: {
+            orders: {
+              product: productId,
+              quantity: parseInt(quantity),
+              paymentDetails: {
+                paymentId: razorpay_payment_id,
+                orderId: razorpay_order_id,
+                orderDate: new Date()
+              }
+            }
+          }
+        },
+        { 
+          new: true,
+          runValidators: false  // Disable validation temporarily
+        }
+      );
 
-      // Check if orders array exists, if not create it
-      if (!user.orders) {
-        user.orders = [];
+      if (!updateResult) {
+        return res.status(404).json({ success: false, message: "User not found" });
       }
 
-      // Always add new order (allow multiple orders of same product)
-      user.orders.push({
-        product: productId,
-        quantity: parseInt(quantity),
-        paymentDetails: {
-          paymentId: razorpay_payment_id,
-          orderId: razorpay_order_id,
-          orderDate: new Date()
-        }
-      });
-
-      await user.save();
+      console.log('Order added successfully for user:', userId);
 
       res.json({ 
         success: true, 
         message: "Payment verified and order placed successfully" 
       });
     } else {
+      console.log('Signature mismatch:', {
+        expected: expectedSignature,
+        received: razorpay_signature
+      });
       res.status(400).json({ success: false, message: "Payment verification failed" });
     }
   } catch (err) {

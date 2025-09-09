@@ -1,5 +1,36 @@
 <%- include('../partials/head') %>
 <%- include('../partials/nav') %>
+<style>
+  @keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+.animate-slide-out {
+  animation: slide-out 0.3s ease-in forwards;
+}
+</style>
 
 <div class="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 relative overflow-hidden">
   <!-- Animated Background Elements -->
@@ -28,14 +59,54 @@
       </div>
     </div>
 
-    <!-- Error Message -->
-    <% if (typeof errorMessage !== 'undefined') { %>
-      <div class="mb-8 max-w-2xl mx-auto">
-        <div class="bg-red-500/20 backdrop-blur-xl border border-red-500/30 text-red-200 p-4 rounded-xl shadow-lg">
-          <%= errorMessage %>
+    <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+<div id="successMessage" class="fixed top-4 right-4 z-50">
+  <div class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-lg shadow-lg border-l-4 border-green-300 animate-slide-in">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <div class="ml-3">
+        <p class="text-sm font-medium">✅ <%= successMessage %></p>
+      </div>
+      <div class="ml-auto pl-3">
+        <button onclick="closeMessage('successMessage')" class="text-green-100 hover:text-white">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<% } %>
+
+  <!-- Error Message -->
+  <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+    <div id="errorMessage" class="fixed top-4 right-4 z-50">
+      <div class="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-4 rounded-lg shadow-lg border-l-4 border-red-300 animate-slide-in">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm font-medium">❌ <%= errorMessage %></p>
+          </div>
+          <div class="ml-auto pl-3">
+            <button onclick="closeMessage('errorMessage')" class="text-red-100 hover:text-white">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
-    <% } %>
+    </div>
+  <% } %>
 
     <!-- Properties Grid -->
     <div class="flex flex-wrap justify-center gap-8 max-w-7xl mx-auto">
@@ -60,11 +131,6 @@
               <!-- Quantity Badge -->
               <div class="absolute top-4 left-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full px-3 py-1 flex items-center shadow-lg transform group-hover:scale-110 transition-transform duration-300">
                 <span class="text-sm font-bold">Qty: <%= order.quantity %></span>
-              </div>
-
-              <!-- Order Number Badge -->
-              <div class="absolute bottom-4 right-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-full px-3 py-1 flex items-center shadow-lg">
-                <span class="text-xs font-bold">Order #<%= index + 1 %></span>
               </div>
             </div>
             
@@ -107,7 +173,7 @@
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
-                    Cancel Order #<%= index + 1 %>
+                    Cancel Order 
                   </span>
                 </button>
               </div>
@@ -226,7 +292,7 @@
 
 <script>
   function showConfirmation(orderId, productName, orderNumber) {
-    document.getElementById('productName').innerHTML = `<strong>${productName}</strong><br><small>Order #${orderNumber}</small>`;
+    document.getElementById('productName').innerHTML = `<strong>${productName}</strong>`;
     document.getElementById('cancelForm').action = `/orders/delete/${orderId}`;
     const modal = document.getElementById('confirmationModal');
     modal.classList.remove('hidden');
@@ -430,4 +496,33 @@
       document.body.appendChild(star);
     }
   }, 5000); // Check every 5 seconds
+  // Function to close messages
+  function closeMessage(messageId) {
+    const element = document.getElementById(messageId);
+    if (element) {
+      element.querySelector('div').classList.remove('animate-slide-in');
+      element.querySelector('div').classList.add('animate-slide-out');
+      setTimeout(() => {
+        element.style.display = 'none';
+      }, 300);
+    }
+  }
+
+  // Auto-hide success messages after 3 seconds
+  document.addEventListener('DOMContentLoaded', function() {
+    const successMessage = document.getElementById('successMessage');
+    if (successMessage) {
+      setTimeout(() => {
+        closeMessage('successMessage');
+      }, 3000);
+    }
+    
+    // Auto-hide error messages after 5 seconds
+    const errorMessage = document.getElementById('errorMessage');
+    if (errorMessage) {
+      setTimeout(() => {
+        closeMessage('errorMessage');
+      }, 5000);
+    }
+  });
 </script>

@@ -183,40 +183,59 @@
       if (data.orderId) {
         // Initialize Razorpay
         const options = {
-          key: data.key, // Use key from response
+          key: data.key,
           amount: data.amount,
           currency: data.currency,
           name: 'SwiftCart',
           description: `${data.product.name} (Qty: ${quantity})`,
-          image: data.product.image,
+          image: 'data:image/svg+xml;base64,' + btoa(`
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                class="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform duration-300 text-yellow-300"
+              >
+                <path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+              </svg>
+          `),
           order_id: data.orderId,
           handler: async function (response) {
-            // Verify payment
-            const verifyResponse = await fetch('/verify-payment', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                productId: productId,
-                quantity: quantity
-              })
-            });
-
-            const verifyData = await verifyResponse.json();
+            console.log('Razorpay response:', response); // Debug log
             
-            if (verifyData.success) {
-              // Enhanced success message
-              const qty = document.getElementById('quantity').value;
-              const total = productPrice * qty;
+            try {
+              // Verify payment
+              const verifyResponse = await fetch('/verify-payment', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  productId: productId,  // Make sure these variables are accessible
+                  quantity: parseInt(quantity) // Make sure quantity is an integer
+                })
+              });
+
+              console.log('Verify response status:', verifyResponse.status); // Debug log
               
-              alert(`🎉 Order placed successfully!\n\nProduct: ${data.product.name}\nQuantity: ${qty}\nTotal: ₹${total}\n\nYou can order this product again anytime!`);
-              window.location.href = '/orders';
-            } else {
-              alert('❌ Payment verification failed! Please try again.');
+              const verifyData = await verifyResponse.json();
+              console.log('Verify response data:', verifyData); // Debug log
+              
+              if (verifyData.success) {
+                // Enhanced success message
+                const qty = document.getElementById('quantity').value;
+                const total = productPrice * qty;
+                
+                alert(`🎉 Order placed successfully!\n\nProduct: ${productName}\nQuantity: ${qty}\nTotal: ₹${total}\n\nYou can order this product again anytime!`);
+                window.location.href = '/orders';
+              } else {
+                alert('❌ Payment verification failed! ' + (verifyData.message || 'Please try again.'));
+              }
+            } catch (error) {
+              console.error('Verification error:', error);
+              alert('❌ Error during payment verification! Please try again.');
             }
           },
           prefill: {
