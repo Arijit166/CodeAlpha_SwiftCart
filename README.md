@@ -52,6 +52,7 @@ npm install
 npm run dev
 ``` 
 ### 🔗 Visit: http://localhost:2006/ to access SwiftCart locally.
+### 🌍Check out my project here:  https://codealpha-swiftcart.onrender.com
 
 ## 🧾 Scripts
 ```
