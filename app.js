@@ -113,12 +113,35 @@ app.use((req, res, next) => {
 
 app.use(errorsController.pageNotFound);
 
-const PORT = 2006;
+// Replace this part at the end of your file:
+
+const PORT = process.env.PORT || 2006;
+const HOST = process.env.HOST || '0.0.0.0';
+const NODE_ENV = process.env.NODE_ENV || 'development';
+
+// Production-specific configurations
+if (NODE_ENV === 'production') {
+  // Trust proxy for secure headers
+  app.set('trust proxy', 1);
+  
+  // Update session config for production
+  app.use(session({
+    secret: process.env.SESSION_SECRET || "fallback-secret-key",
+    resave: false,
+    saveUninitialized: false,
+    store,
+    cookie: {
+      secure: true, // HTTPS only
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+  }));
+}
 
 mongoose.connect(DB_PATH).then(() => {
   console.log('Connected to Mongo');
-  app.listen(PORT, () => {
-    console.log(`Server running on address http://localhost:${PORT}`);
+  app.listen(PORT, HOST, () => {
+    console.log(`Server running on address http://${HOST}:${PORT} in ${NODE_ENV} mode`);
   });
 }).catch(err => {
   console.log('Error while connecting to Mongo: ', err);
